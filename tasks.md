@@ -53,6 +53,20 @@ Time estimate: 10 to 12 working days in total.
 - [x] Tested auth redirects, unit validation tests, fallback integrity, and responsive layout across 375px and 1280px
 - **Deliverable:** complete protected admin portal with full database schema and documentation
 
+## Stage 5: Database Connection & Patient Enquiries
+- [x] Snapshot Stage 4 git state (tag `stage4-complete`)
+- [x] Environment check: detected Vite SPA, keys verified present, verified SQL migration cannot be run automatically from MCP due to token permissions
+- [x] Complete database schema & RLS migrations (`supabase/schema_combined.sql` and `supabase/migrations/20261020000001_stage5_enquiries_schema.sql`)
+- [x] `enquiries` table with strict check constraints, timestamps, and RLS (anon can INSERT new enquiries only; admins have full access)
+- [x] Public appointment form wired to real Supabase insert with honest success/error states, honeypot, rate limiting, and zero patient data logging
+- [x] Admin enquiries portal at `/admin/enquiries` with status filtering, search, detail view, confirmation status recording, and medical note warning
+- [x] Dashboard updated with live new enquiry count and quick-access banner
+- [x] Updated `ADMIN.md` with combined schema execution guide and enquiry management rules
+- [x] Automated unit test suite run and passed (`stage5_tests.mjs`)
+- [x] Browser subagent verified unauthenticated redirect to `/admin/login`, appointment form inspection, and mobile responsiveness at 375px with 0 errors
+- [x] Typecheck (`npm run typecheck`) and production build (`npm run build`) passed with exit code 0
+- **Deliverable:** complete database schema, enquiries pipeline, admin inbox, and security documentation
+
 ## Support
 14 days of bug fixes for the agreed deliverables after launch.
 

@@ -32,6 +32,7 @@ import AdminGalleryPage from "@/pages/admin/AdminGalleryPage";
 import AdminAboutPage from "@/pages/admin/AdminAboutPage";
 import AdminSettingsPage from "@/pages/admin/AdminSettingsPage";
 import AdminHoursPage from "@/pages/admin/AdminHoursPage";
+import AdminEnquiriesPage from "@/pages/admin/AdminEnquiriesPage";
 
 import { pageMeta } from "@/lib/clinic-config";
 
@@ -102,6 +103,7 @@ export default function App() {
           {/* Protected Admin Routes */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
+            <Route path="enquiries" element={<AdminEnquiriesPage />} />
             <Route path="doctors" element={<AdminDoctorsPage />} />
             <Route path="treatments" element={<AdminTreatmentsPage />} />
             <Route path="gallery" element={<AdminGalleryPage />} />

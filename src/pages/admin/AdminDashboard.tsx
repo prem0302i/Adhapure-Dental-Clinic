@@ -11,6 +11,7 @@ import {
   ExternalLink,
   ShieldCheck,
   AlertCircle,
+  Inbox,
 } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
@@ -19,6 +20,8 @@ interface SectionSummary {
   treatmentsCount: number;
   galleryCount: number;
   hoursCount: number;
+  enquiriesCount: number;
+  newEnquiriesCount: number;
   clinicName: string;
 }
 
@@ -28,6 +31,8 @@ export default function AdminDashboard() {
     treatmentsCount: 0,
     galleryCount: 0,
     hoursCount: 0,
+    enquiriesCount: 0,
+    newEnquiriesCount: 0,
     clinicName: "[CLINIC NAME]",
   });
   const [loading, setLoading] = useState(true);
@@ -39,12 +44,14 @@ export default function AdminDashboard() {
         return;
       }
       try {
-        const [docsRes, treatRes, gallRes, hoursRes, settingsRes] = await Promise.all([
+        const [docsRes, treatRes, gallRes, hoursRes, settingsRes, enqRes, newEnqRes] = await Promise.all([
           supabase.from("doctors").select("id", { count: "exact", head: true }),
           supabase.from("treatments").select("id", { count: "exact", head: true }),
           supabase.from("gallery_cases").select("id", { count: "exact", head: true }),
           supabase.from("opening_hours").select("id", { count: "exact", head: true }),
           supabase.from("clinic_settings").select("clinic_name").limit(1).maybeSingle(),
+          supabase.from("enquiries").select("id", { count: "exact", head: true }),
+          supabase.from("enquiries").select("id", { count: "exact", head: true }).eq("status", "new"),
         ]);
 
         setSummary({
@@ -52,6 +59,8 @@ export default function AdminDashboard() {
           treatmentsCount: treatRes.count ?? 0,
           galleryCount: gallRes.count ?? 0,
           hoursCount: hoursRes.count ?? 0,
+          enquiriesCount: enqRes.count ?? 0,
+          newEnquiriesCount: newEnqRes.count ?? 0,
           clinicName: settingsRes.data?.clinic_name || "[CLINIC NAME]",
         });
       } catch {
@@ -65,6 +74,18 @@ export default function AdminDashboard() {
   }, []);
 
   const sections = [
+    {
+      title: "Patient Enquiries",
+      description: "Manage appointment requests, contact status, and staff confirmation.",
+      countText: loading
+        ? "…"
+        : summary.newEnquiriesCount > 0
+        ? `${summary.newEnquiriesCount} new pending`
+        : `${summary.enquiriesCount} total`,
+      icon: Inbox,
+      path: "/admin/enquiries",
+      color: summary.newEnquiriesCount > 0 ? "bg-amber-100 text-amber-800" : "bg-teal-tint text-teal-deep",
+    },
     {
       title: "Our Doctors",
       description: "Manage dentist profiles, qualifications, specialisations, and photos.",
@@ -147,6 +168,24 @@ export default function AdminDashboard() {
             </Link>
           </div>
         </div>
+
+        {summary.newEnquiriesCount > 0 && (
+          <div className="mt-6 flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-xs text-amber-900">
+            <Inbox className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 animate-bounce" aria-hidden="true" />
+            <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div>
+                <span className="font-bold">{summary.newEnquiriesCount} new patient enquiry pending review.</span>{" "}
+                Please contact the patient to confirm availability.
+              </div>
+              <Link
+                to="/admin/enquiries"
+                className="font-semibold text-amber-900 underline hover:text-amber-950 inline-flex items-center gap-1"
+              >
+                Open Inbox →
+              </Link>
+            </div>
+          </div>
+        )}
 
         {summary.galleryCount === 0 && (
           <div className="mt-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800">

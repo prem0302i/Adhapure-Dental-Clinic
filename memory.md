@@ -5,6 +5,127 @@ outstanding items. The most recent stage is at the top.
 
 ---
 
+## Stage 5: Database Connection & Patient Enquiries — COMPLETE
+
+### What was built
+
+1. **Environment & Security Inspection**:
+   - Detected framework: Vite SPA (`React 18` + `React Router 6` + `TypeScript` + `Tailwind CSS`).
+   - Env variables detected: `NEXT_PUBLIC_SUPABASE_URL` (found), `NEXT_PUBLIC_SUPABASE_ANON_KEY` (found), and `SUPABASE_SERVICE_ROLE_KEY` (found).
+   - Confirmed `.env` is ignored by `.gitignore` and never committed or printed. Service role key is never used in client code or prefixed with `VITE_` or `NEXT_PUBLIC_`.
+   - Verified that direct SQL execution via MCP tool is prevented due to organization scoping permissions (`MCP error -32600: You do not have permission to perform this action`).
+   - Provided single combined migration file: [`supabase/schema_combined.sql`](file:///d:/dental%20clinic/supabase/schema_combined.sql) and migration file [`supabase/migrations/20261020000001_stage5_enquiries_schema.sql`](file:///d:/dental%20clinic/supabase/migrations/20261020000001_stage5_enquiries_schema.sql).
+
+2. **Tables and Policies Created in SQL Migration**:
+   - `enquiries`: `id`, `patient_name`, `phone`, `email` (optional), `preferred_date`, `preferred_time_range`, `treatment_id`, `treatment_name`, `message` (optional), `consent_given`, `status` (`new`, `contacted`, `confirmed`, `cancelled`), `confirmed_date`, `confirmed_time`, `staff_note`, `source`, `confirmed_by`, `created_at`, `updated_at`.
+   - Strictly excluded any column for medical history, diagnoses, or ID documents.
+   - `admins`: `user_id` referencing `auth.users`, `email`, `created_at`, `updated_at`.
+   - Content tables: `clinic_settings`, `opening_hours`, `about_content`, `doctors`, `treatments`, `gallery_cases`.
+   - Automatic `updated_at` trigger helper: `public.handle_updated_at()`.
+   - Strict Row Level Security on every table:
+     - `enquiries`: Anon can INSERT only with `consent_given = true` and `status = 'new'`. Anon cannot read, update, or delete. Only admins can SELECT, UPDATE, DELETE.
+     - `gallery_cases`: Public read policy enforces `is_published = true AND consent_confirmed = true`.
+     - `doctors`, `treatments`: Public read for published only; admin write only.
+     - `clinic_settings`, `opening_hours`, `about_content`: Public read; admin write only.
+     - `admins`: Authenticated admin read only via `is_admin()`.
+
+3. **Public Appointment Form Connected**:
+   - Updated [`src/pages/AppointmentPage.tsx`](file:///d:/dental%20clinic/src/pages/AppointmentPage.tsx).
+   - Shared client-side validation runs before submission; database check constraints enforce server-side validation.
+   - Preserves honeypot check (`isSpam()`) and in-memory rate limiting.
+   - Inserts record into `enquiries` table with `status = 'new'`, `source = 'website'`.
+   - Honest messaging: Shows success only when the database confirms the insert. Retains clear statement: *"This is an enquiry only, not a confirmed appointment."*
+   - Clear error banner if submission fails or database is unreachable.
+   - **Zero patient data is logged** to console or server logs.
+
+4. **Admin Enquiries Portal (`/admin/enquiries`)**:
+   - Created [`src/pages/admin/AdminEnquiriesPage.tsx`](file:///d:/dental%20clinic/src/pages/admin/AdminEnquiriesPage.tsx).
+   - Filter tabs: All, New, Contacted, Confirmed, Cancelled with dynamic count badges.
+   - Live search input filtering by patient name, phone, email, and requested treatment.
+   - Newest enquiries displayed first (`order by created_at desc`).
+   - Detail view modal showing complete request information:
+     - Clickable `tel:` and WhatsApp direct chat links.
+     - Status switcher (`new`, `contacted`, `confirmed`, `cancelled`).
+     - Appointment confirmation inputs: `confirmed_date` and `confirmed_time`.
+     - Staff confirmation notice: *"Confirming records staff confirmation only. Do not send any automatic message to the patient — please follow up directly via phone or WhatsApp."*
+     - Internal staff notes textarea with prominent warning banner: *"⚠️ Important: Do not enter medical details, diagnoses, or health history in this note."*
+   - Real loading, saving, success, and error states. Delete modal with confirmation.
+
+5. **Admin Navigation & Dashboard Integration**:
+   - Added "Enquiries" navigation tab with Inbox icon in [`AdminLayout.tsx`](file:///d:/dental%20clinic/src/components/admin/AdminLayout.tsx).
+   - Added "Patient Enquiries" section card in [`AdminDashboard.tsx`](file:///d:/dental%20clinic/src/pages/admin/AdminDashboard.tsx) showing real-time pending new count.
+   - Added alert callout banner on Admin Dashboard when new enquiries are awaiting staff review.
+
+6. **Documentation & Handover Guide**:
+   - Updated [`ADMIN.md`](file:///d:/dental%20clinic/ADMIN.md) with combined schema instructions, enquiry management rules, staff note boundaries, and first admin setup.
+
+---
+
+### Every existing file modified (and why)
+
+| File | Changes Made | Rationale |
+|---|---|---|
+| [`src/pages/AppointmentPage.tsx`](file:///d:/dental%20clinic/src/pages/AppointmentPage.tsx) | Replaced simulated delay with real Supabase `enquiries.insert()` | Real database submission for appointment requests while preserving honeypot, rate limiting, and zero logging. |
+| [`src/components/admin/AdminLayout.tsx`](file:///d:/dental%20clinic/src/components/admin/AdminLayout.tsx) | Added Enquiries nav item with `Inbox` icon | Provides top navigation tab for managing patient enquiries. |
+| [`src/pages/admin/AdminDashboard.tsx`](file:///d:/dental%20clinic/src/pages/admin/AdminDashboard.tsx) | Added enquiries counters, section card, and new enquiry callout banner | Gives staff immediate visibility into pending patient requests upon login. |
+| [`src/App.tsx`](file:///d:/dental%20clinic/src/App.tsx) | Registered `/admin/enquiries` route | Routes URL to `AdminEnquiriesPage` inside protected `AdminLayout`. |
+| [`ADMIN.md`](file:///d:/dental%20clinic/ADMIN.md) | Updated migration instructions for `supabase/schema_combined.sql` and enquiry rules | Provides clear copy-paste instructions for the owner in Supabase SQL Editor. |
+| [`tasks.md`](file:///d:/dental%20clinic/tasks.md) | Added Stage 5 checklist | Documents project completion milestones. |
+
+---
+
+### What was tested and how
+
+1. **Git State Snapshot**:
+   - Tagged `stage4-complete` on Git repository before making Stage 5 modifications.
+2. **Environment & Supabase Connection Test**:
+   - Ran `test_db_connection.mjs` verifying connection to PostgREST using both `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY`. Confirmed `404 PGRST205` response (PostgREST is online and awaiting SQL schema execution in the Supabase Dashboard).
+3. **Automated Unit Testing (`scratch/stage5_tests.mjs`)**:
+   - Verified `validateEnquiry()` enforces all required fields (name, phone, preferredDate, preferredTime, treatment, consent).
+   - Verified missing consent is rejected.
+   - Verified honeypot spam detection works silently without raising exceptions.
+   - Verified valid enquiry payload is accepted.
+4. **Browser Subagent Testing (`browser_subagent`)**:
+   - Verified that navigating directly to `http://localhost:5173/admin/enquiries` while unauthenticated immediately redirects to `/admin/login`.
+   - Verified `/appointment` form displays all fields and styled inputs cleanly.
+   - Verified mobile responsiveness at 375px viewport with zero overflow and intact layout.
+   - Checked browser console: **0 errors**.
+5. **TypeScript Compilation & Production Build**:
+   - `npm run typecheck` passed with **0 errors**.
+   - `npm run build` succeeded with exit code 0 in 2.38s.
+   - Confirmed no secrets, service-role keys, or sensitive credentials exist in client bundles or committed files.
+
+---
+
+### What could not be tested
+
+- Direct automated SQL execution into the remote Supabase PostgreSQL database could not be run from this environment because the Supabase MCP token is scoped to a different organization (`ProtocolError: You do not have permission to perform this action`). All SQL statements are packaged in [`supabase/schema_combined.sql`](file:///d:/dental%20clinic/supabase/schema_combined.sql) ready for the owner to paste into the Supabase SQL Editor.
+- End-to-end database write and read-back for enquiries will be live the moment the owner pastes and runs `supabase/schema_combined.sql` in the Supabase SQL Editor.
+
+---
+
+### Manual setup steps required in Supabase
+
+1. Open the [Supabase Dashboard](https://supabase.com/dashboard) and select your project.
+2. Go to **SQL Editor** $\rightarrow$ **New Query**.
+3. Open [`supabase/schema_combined.sql`](file:///d:/dental%20clinic/supabase/schema_combined.sql), copy its entire contents, paste it into the editor, and click **Run**.
+4. *(Optional)* Run [`supabase/seed.sql`](file:///d:/dental%20clinic/supabase/seed.sql) to populate initial draft content.
+5. Create your initial admin user in **Authentication** $\rightarrow$ **Users** $\rightarrow$ **Add User**, copy their UID, and run:
+   ```sql
+   INSERT INTO public.admins (user_id, email)
+   VALUES ('<YOUR-USER-UID>', '<YOUR-ADMIN-EMAIL>');
+   ```
+6. Log in at `http://localhost:5173/admin/login`.
+
+---
+
+### Known limitations
+
+1. **Client-Side SPA Architecture**: All client queries run through Supabase PostgREST with the public `anon` key. PostgreSQL Row Level Security enforces all data access boundaries.
+2. **In-Memory Rate Limiting**: Client rate limiting is enforced in memory (resets on page refresh). Database-level CHECK constraints enforce payload sanity for all direct requests.
+
+---
+
 ## Stage 4: Protected Admin Content Management — COMPLETE
 
 ### What was built

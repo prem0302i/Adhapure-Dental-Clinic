@@ -1,6 +1,6 @@
-# Clinic Content Management — Administrator Guide
+# Clinic Content Management & Enquiries — Administrator Guide
 
-This document explains how to set up, operate, and maintain the protected Admin Portal at `/admin`.
+This document explains how to set up, operate, and maintain the protected Admin Portal at `/admin` and the Enquiries system.
 
 ---
 
@@ -15,22 +15,28 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOi...
 
 # Or Next.js convention (automatically detected by Vite):
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...
 
 # Server-only Service Role Key (NEVER expose to client code or commit to Git)
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOi...
 ```
 
+> **Security Rule**: The `SUPABASE_SERVICE_ROLE_KEY` must never be used in client code or prefixed with `VITE_` or `NEXT_PUBLIC_`. The `.env` file is in `.gitignore` and must never be committed.
+
 ---
 
 ## 2. How to Run Migrations & Seed Data
 
-### Step A: Apply Database Schema & Row Level Security
+### Step A: Apply Complete Database Schema & Row Level Security
 1. Log in to your [Supabase Dashboard](https://supabase.com/dashboard).
 2. Open your project and navigate to the **SQL Editor**.
-3. Open [`supabase/migrations/20261020000000_stage4_admin_schema.sql`](file:///d:/dental%20clinic/supabase/migrations/20261020000000_stage4_admin_schema.sql) from this repository.
+3. Open [`supabase/schema_combined.sql`](file:///d:/dental%20clinic/supabase/schema_combined.sql) from this repository.
 4. Copy the entire SQL content, paste it into the Supabase SQL Editor, and click **Run**.
-5. This creates all tables (`admins`, `doctors`, `treatments`, `about_content`, `gallery_cases`, `clinic_settings`, `opening_hours`), storage buckets (`doctor-photos`, `gallery-cases`), and configures PostgreSQL Row Level Security (RLS).
+5. This creates:
+   - All content tables: `admins`, `doctors`, `treatments`, `about_content`, `gallery_cases`, `clinic_settings`, `opening_hours`.
+   - The operations table: `enquiries` with strict check constraints and RLS.
+   - Storage buckets: `doctor-photos`, `gallery-cases` with public read and admin-only write policies.
+   - Row Level Security (RLS) policies on every single table.
 
 ### Step B: (Optional) Load Initial Placeholder Seed Data
 1. In the Supabase **SQL Editor**, open [`supabase/seed.sql`](file:///d:/dental%20clinic/supabase/seed.sql).
@@ -75,13 +81,19 @@ DELETE FROM public.admins WHERE email = 'formeradmin@yourclinic.com';
 
 ---
 
-## 5. Security & Session Policies
+## 5. Security, Enquiries & Session Policies
 
 - **Protected URLs:** Every path under `/admin` redirects unauthenticated users to `/admin/login`.
 - **Inactivity Session Timeout:** If an administrator remains inactive for 15 minutes, their session automatically expires and logs them out.
 - **Row Level Security (RLS):**
   - Public anonymous users can only `SELECT` published records (`is_published = true`).
   - Smile Gallery cases require **both** `is_published = true AND consent_confirmed = true` to be viewable publicly.
-  - Mutations (`INSERT`, `UPDATE`, `DELETE`) are strictly forbidden unless the caller is verified in the `admins` table.
+  - Public anonymous users can `INSERT` into `enquiries` with status `'new'` and `consent_given = true`. They cannot read, update, or delete any enquiry.
+  - Only authenticated users verified in `public.admins` can `SELECT`, `UPDATE`, or `DELETE` enquiries and content tables.
+- **Enquiry Management Guidelines:**
+  - Status progression: `new` -> `contacted` -> `confirmed` / `cancelled`.
+  - When confirming an enquiry, staff records the confirmed date and time.
+  - Confirming records staff confirmation only — no automatic emails or messages are sent to the patient.
+  - Internal staff notes: **Never enter medical history, diagnoses, or sensitive health data**.
 - **Search Engine Exclusion:** The entire `/admin` area is marked with `noindex,nofollow` and is excluded from `sitemap.xml`.
 - **Public Fallback Safety:** If Supabase is unreachable or unconfigured, the public website automatically falls back to `clinic-config.ts` without interrupting visitor access.

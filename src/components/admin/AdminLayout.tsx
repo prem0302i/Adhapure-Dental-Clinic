@@ -10,11 +10,13 @@ import {
   Settings,
   Clock,
   LayoutDashboard,
+  Inbox,
 } from "lucide-react";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 
 const adminNavItems = [
   { label: "Dashboard", path: "/admin", icon: LayoutDashboard, end: true },
+  { label: "Enquiries", path: "/admin/enquiries", icon: Inbox, end: false },
   { label: "Doctors", path: "/admin/doctors", icon: Users, end: false },
   { label: "Treatments", path: "/admin/treatments", icon: Stethoscope, end: false },
   { label: "Smile Gallery", path: "/admin/gallery", icon: Sparkles, end: false },

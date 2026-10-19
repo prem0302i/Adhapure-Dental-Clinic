@@ -13,6 +13,7 @@ import {
   type EnquiryInput,
   type ValidationErrors,
 } from "@/lib/validation";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 // ---------------------------------------------------------------------------
 // Rate limiting — very basic client-side guard (in-memory, resets on refresh)
@@ -160,37 +161,43 @@ export default function AppointmentPage() {
     setServerError("");
     recordSubmission();
 
-    // -----------------------------------------------------------------------
-    // SERVER SUBMISSION NOTE
-    // -----------------------------------------------------------------------
-    // This is a Vite + React SPA. There is no server runtime in this
-    // environment, so no server action or API route is available.
-    //
-    // When a server handler is added (e.g. a Supabase Edge Function or a
-    // third-party form service configured via environment variables), replace
-    // the timeout below with a real fetch() call to that endpoint.
-    //
-    // The same validation logic from src/lib/validation.ts MUST be applied
-    // server-side to prevent bypass. Secrets must stay server-side only.
-    //
-    // Until then, the form shows an honest "not connected yet" state below.
-    // -----------------------------------------------------------------------
+    try {
+      if (!isSupabaseConfigured || !supabase) {
+        setFormState("error");
+        setServerError(
+          "We are currently unable to process online requests. Please contact us directly by phone or WhatsApp.",
+        );
+        return;
+      }
 
-    // Simulate network delay so loading state is visible, then show the
-    // "not connected" state. This is NOT a fake success.
-    await new Promise((resolve) => setTimeout(resolve, 800));
+      const { error: insertError } = await supabase.from("enquiries").insert({
+        patient_name: values.name.trim(),
+        phone: values.phone.trim(),
+        email: values.email?.trim() || null,
+        preferred_date: values.preferredDate,
+        preferred_time_range: values.preferredTime,
+        treatment_name: values.treatment,
+        message: values.message?.trim() || null,
+        consent_given: values.consent,
+        status: "new",
+        source: "website",
+      });
 
-    // Replace the line above and the "not-connected" branch below with:
-    //   const res = await fetch("/api/enquire", { method: "POST", body: JSON.stringify(values) });
-    //   if (!res.ok) throw new Error(await res.text());
-    //   setFormState("success");
-    // when a real server endpoint is available.
+      if (insertError) {
+        setFormState("error");
+        setServerError(
+          "We could not save your request at this moment. Please call or WhatsApp us directly.",
+        );
+        return;
+      }
 
-    setFormState("error");
-    setServerError(
-      "NOT CONNECTED YET — The form submission endpoint has not been configured. " +
-        "Please contact us by phone or WhatsApp while this is being set up.",
-    );
+      setFormState("success");
+    } catch {
+      setFormState("error");
+      setServerError(
+        "A network error occurred while submitting your enquiry. Please reach out by phone or WhatsApp.",
+      );
+    }
   }
 
   function handleReset() {
