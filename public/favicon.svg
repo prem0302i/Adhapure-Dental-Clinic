@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <rect width="32" height="32" rx="8" fill="#0C7779"/>
+  <!-- Minimalist tooth / smile curve icon placeholder -->
+  <path d="M10 9C8 11 7 14 7 17C7 22 9 25 12 25C14 25 15 22 16 20C17 22 18 25 20 25C23 25 25 22 25 17C25 14 24 11 22 9C20 7 18 8 16 8C14 8 12 7 10 9Z" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

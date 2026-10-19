@@ -1,0 +1,236 @@
+import { Phone, Mail, MapPin, Clock, Navigation, MessageCircle } from "lucide-react";
+import { SectionHeading } from "@/components/ui/SectionHeading";
+import { Button } from "@/components/ui/Button";
+import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
+import { Placeholder } from "@/components/ui/Placeholder";
+import { PageMeta } from "@/components/ui/PageMeta";
+import { clinicConfig, pageMeta } from "@/lib/clinic-config";
+
+// Placeholder hours shown until the client supplies real ones
+const PLACEHOLDER_HOURS = [
+  { day: "Monday – Friday", hours: "[TO BE CONFIRMED]" },
+  { day: "Saturday", hours: "[TO BE CONFIRMED]" },
+  { day: "Sunday", hours: "[TO BE CONFIRMED]" },
+];
+
+const hours = clinicConfig.hours.length > 0 ? clinicConfig.hours : PLACEHOLDER_HOURS;
+
+interface ContactRowProps {
+  icon: React.ReactNode;
+  label: string;
+  children: React.ReactNode;
+}
+
+function ContactRow({ icon, label, children }: ContactRowProps) {
+  return (
+    <div className="flex items-start gap-4 py-4">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-teal-tint text-teal-deep">
+        {icon}
+      </span>
+      <div>
+        <p className="text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
+        <div className="mt-0.5 text-navy">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+export default function ContactPage() {
+  const meta = pageMeta["/contact"];
+  const hasMapsLink = Boolean(clinicConfig.address.mapsLink);
+  const hasDirectionsLink = Boolean(clinicConfig.address.directionsLink);
+  const hasPhone = Boolean(clinicConfig.contact.phoneHref);
+  const hasEmail = Boolean(clinicConfig.contact.email);
+
+  return (
+    <>
+      <PageMeta title={meta.title} description={meta.description} />
+
+      {/* Page header */}
+      <section className="bg-enamel section-gap">
+        <div className="container-wide">
+          <SectionHeading as="h1" title="Contact and location">
+            We are here to help. Reach us by phone, WhatsApp, or email, and find directions below.
+          </SectionHeading>
+        </div>
+      </section>
+
+      {/* Contact details + map */}
+      <section className="section-gap">
+        <div className="container-wide grid gap-12 md:grid-cols-2 md:items-start">
+
+          {/* Contact details */}
+          <div>
+            <h2 className="font-serif text-2xl text-navy">Get in touch</h2>
+
+            <div className="mt-6 divide-y divide-line border-y border-line">
+              {/* Phone */}
+              <ContactRow icon={<Phone className="h-5 w-5" aria-hidden="true" />} label="Phone">
+                {hasPhone ? (
+                  <a
+                    href={clinicConfig.contact.phoneHref}
+                    className="font-medium hover:text-teal-deep"
+                  >
+                    {clinicConfig.contact.phoneDisplay}
+                  </a>
+                ) : (
+                  <span className="text-muted italic">{clinicConfig.contact.phoneDisplay}</span>
+                )}
+              </ContactRow>
+
+              {/* WhatsApp */}
+              <ContactRow
+                icon={<MessageCircle className="h-5 w-5" aria-hidden="true" />}
+                label="WhatsApp"
+              >
+                <WhatsAppButton label="Chat on WhatsApp" variant="inline" />
+              </ContactRow>
+
+              {/* Email */}
+              <ContactRow icon={<Mail className="h-5 w-5" aria-hidden="true" />} label="Email">
+                {hasEmail ? (
+                  <a
+                    href={`mailto:${clinicConfig.contact.email}`}
+                    className="hover:text-teal-deep"
+                  >
+                    {clinicConfig.contact.email}
+                  </a>
+                ) : (
+                  <span className="text-sm text-muted italic">[EMAIL TO BE CONFIRMED]</span>
+                )}
+              </ContactRow>
+
+              {/* Address */}
+              <ContactRow icon={<MapPin className="h-5 w-5" aria-hidden="true" />} label="Address">
+                <address className="not-italic text-navy">
+                  {clinicConfig.address.line1}
+                  <br />
+                  {clinicConfig.address.line2}
+                </address>
+              </ContactRow>
+
+              {/* Hours */}
+              <ContactRow icon={<Clock className="h-5 w-5" aria-hidden="true" />} label="Opening hours">
+                <ul className="space-y-1 text-sm">
+                  {hours.map(({ day, hours: h }) => (
+                    <li key={day} className="flex gap-4">
+                      <span className="w-36 shrink-0 text-muted">{day}</span>
+                      <span className={h.startsWith("[") ? "text-muted italic" : "text-navy"}>
+                        {h}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                {clinicConfig.hours.length === 0 && (
+                  <p className="mt-2 text-xs text-muted italic">
+                    Hours to be confirmed and updated before launch.
+                  </p>
+                )}
+              </ContactRow>
+            </div>
+
+            {/* Directions button */}
+            <div className="mt-6 flex flex-wrap gap-3">
+              {hasDirectionsLink ? (
+                <a
+                  href={clinicConfig.address.directionsLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-pill bg-teal-deep px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal min-h-tap"
+                >
+                  <Navigation className="h-4 w-4" aria-hidden="true" />
+                  Get directions
+                </a>
+              ) : hasMapsLink ? (
+                <a
+                  href={clinicConfig.address.mapsLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-pill bg-teal-deep px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal min-h-tap"
+                >
+                  <Navigation className="h-4 w-4" aria-hidden="true" />
+                  Open in Maps
+                </a>
+              ) : (
+                <span className="inline-flex items-center gap-2 rounded-pill border border-dashed border-line bg-enamel px-5 py-2.5 text-sm text-muted min-h-tap cursor-default">
+                  <Navigation className="h-4 w-4" aria-hidden="true" />
+                  Directions — Maps link to be supplied
+                </span>
+              )}
+
+              <Button to="/appointment" variant="secondary" size="md">
+                Request an appointment
+              </Button>
+            </div>
+          </div>
+
+          {/* Map embed or placeholder */}
+          <div className="flex flex-col gap-4">
+            {hasMapsLink ? (
+              <div className="overflow-hidden rounded-xl border border-line">
+                {/* When a real embed URL is supplied, swap the anchor below
+                    for an <iframe> with the correct Google Maps embed URL. */}
+                <a
+                  href={clinicConfig.address.mapsLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
+                  aria-label="View clinic location on Google Maps (opens in a new tab)"
+                >
+                  <Placeholder label="Google Maps" className="rounded-xl border-0">
+                    Click to open the location in Google Maps.
+                  </Placeholder>
+                </a>
+              </div>
+            ) : (
+              <Placeholder label="[MAP PLACEHOLDER]">
+                <span className="inline-flex items-center gap-1.5 text-muted">
+                  <MapPin className="h-4 w-4" aria-hidden="true" />
+                  Google Maps will be embedded here once the clinic's Maps link is supplied. No
+                  location is displayed until the real address is confirmed.
+                </span>
+              </Placeholder>
+            )}
+
+            <div className="rounded-lg border border-line bg-enamel p-4 text-sm text-muted">
+              <p>
+                <strong className="text-navy">Parking and access:</strong>{" "}
+                <span className="italic">[TO BE CONFIRMED by the clinic]</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Enquiry form link */}
+      <section className="bg-enamel section-gap">
+        <div className="container-wide flex flex-col items-center gap-5 text-center">
+          <h2 className="font-serif text-2xl text-navy md:text-3xl">Prefer to send a message?</h2>
+          <p className="max-w-md text-muted">
+            Use our enquiry form to request an appointment or ask a question. We will get back to
+            you within one business day.
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Button to="/appointment" size="lg">
+              Go to enquiry form
+            </Button>
+            <WhatsAppButton label="Chat on WhatsApp" />
+          </div>
+          <p className="text-xs text-muted">
+            Or send us an email directly at{" "}
+            {hasEmail ? (
+              <a
+                href={`mailto:${clinicConfig.contact.email}`}
+                className="underline hover:text-teal-deep"
+              >
+                {clinicConfig.contact.email}
+              </a>
+            ) : (
+              <span className="italic">[EMAIL TO BE CONFIRMED]</span>
+            )}
+          </p>
+        </div>
+      </section>
+    </>
+  );
+}

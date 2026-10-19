@@ -1,0 +1,6 @@
+# Robots configuration for development/staging
+# Disallow all indexing until content is final and owner approves launch
+User-agent: *
+Disallow: /
+
+Sitemap: /sitemap.xml
