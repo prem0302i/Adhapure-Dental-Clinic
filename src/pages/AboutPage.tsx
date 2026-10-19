@@ -5,32 +5,13 @@ import { Button } from "@/components/ui/Button";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { PageMeta } from "@/components/ui/PageMeta";
 import { pageMeta } from "@/lib/clinic-config";
+import { useAboutContent } from "@/lib/content";
 
-const philosophyPoints = [
-  {
-    icon: Heart,
-    title: "Patient first",
-    body: "We take time to listen and explain every step of your care in plain language. No rushed appointments, no surprise recommendations.",
-  },
-  {
-    icon: Users,
-    title: "Family-friendly",
-    body: "We welcome patients of all ages and aim to create a calm, welcoming environment — especially for those who feel anxious about dental visits.",
-  },
-  {
-    icon: Sparkles,
-    title: "Preventive focus",
-    body: "We believe good oral health starts with education and regular maintenance. We guide every patient on at-home care between visits.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Safe and hygienic",
-    body: "All instruments are sterilised to strict protocols. We follow current infection-control guidelines at every appointment.",
-  },
-];
+const defaultIcons = [Heart, Users, Sparkles, ShieldCheck];
 
 export default function AboutPage() {
   const meta = pageMeta["/about"];
+  const { content } = useAboutContent();
   return (
     <>
       <PageMeta title={meta.title} description={meta.description} />
@@ -67,15 +48,18 @@ export default function AboutPage() {
         <div className="container-wide">
           <SectionHeading title="Our philosophy of care" align="center" />
           <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {philosophyPoints.map(({ icon: Icon, title, body }) => (
-              <div key={title} className="flex flex-col gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-teal-tint text-teal-deep">
-                  <Icon className="h-6 w-6" aria-hidden="true" />
-                </span>
-                <h2 className="font-serif text-lg text-navy">{title}</h2>
-                <p className="text-sm text-muted leading-relaxed">{body}</p>
-              </div>
-            ))}
+            {content.philosophy.map((pillar, i) => {
+              const Icon = defaultIcons[i % defaultIcons.length];
+              return (
+                <div key={pillar.title || i} className="flex flex-col gap-3">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-teal-tint text-teal-deep">
+                    <Icon className="h-6 w-6" aria-hidden="true" />
+                  </span>
+                  <h2 className="font-serif text-lg text-navy">{pillar.title}</h2>
+                  <p className="text-sm text-muted leading-relaxed">{pillar.body}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -94,19 +78,16 @@ export default function AboutPage() {
               as possible.
             </SectionHeading>
             <ul className="mt-6 divide-y divide-line border-y border-line text-sm text-muted">
-              {[
-                "Modern treatment rooms — details to be confirmed",
-                "Digital X-rays — details to be confirmed",
-                "Accessible waiting area — details to be confirmed",
-                "Private consultation space — details to be confirmed",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-3 py-3">
+              {content.facilities.map((item, i) => (
+                <li key={i} className="flex items-start gap-3 py-3">
                   <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-teal-deep" aria-hidden="true" />
                   <span>
                     {item}{" "}
-                    <span className="rounded border border-dashed border-line bg-white px-1.5 py-0.5 text-xs text-muted">
-                      placeholder
-                    </span>
+                    {item.includes("confirmed") && (
+                      <span className="rounded border border-dashed border-line bg-white px-1.5 py-0.5 text-xs text-muted">
+                        placeholder
+                      </span>
+                    )}
                   </span>
                 </li>
               ))}

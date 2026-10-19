@@ -5,15 +5,7 @@ import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { PageMeta } from "@/components/ui/PageMeta";
 import { clinicConfig, pageMeta } from "@/lib/clinic-config";
-
-// Placeholder hours shown until the client supplies real ones
-const PLACEHOLDER_HOURS = [
-  { day: "Monday – Friday", hours: "[TO BE CONFIRMED]" },
-  { day: "Saturday", hours: "[TO BE CONFIRMED]" },
-  { day: "Sunday", hours: "[TO BE CONFIRMED]" },
-];
-
-const hours = clinicConfig.hours.length > 0 ? clinicConfig.hours : PLACEHOLDER_HOURS;
+import { useOpeningHours, useClinicSettings } from "@/lib/content";
 
 interface ContactRowProps {
   icon: React.ReactNode;
@@ -37,10 +29,13 @@ function ContactRow({ icon, label, children }: ContactRowProps) {
 
 export default function ContactPage() {
   const meta = pageMeta["/contact"];
-  const hasMapsLink = Boolean(clinicConfig.address.mapsLink);
-  const hasDirectionsLink = Boolean(clinicConfig.address.directionsLink);
-  const hasPhone = Boolean(clinicConfig.contact.phoneHref);
-  const hasEmail = Boolean(clinicConfig.contact.email);
+  const { hours } = useOpeningHours();
+  const { settings } = useClinicSettings();
+
+  const hasMapsLink = Boolean(settings.mapsLink);
+  const hasDirectionsLink = Boolean(settings.directionsLink);
+  const hasPhone = Boolean(settings.phoneHref);
+  const hasEmail = Boolean(settings.email);
 
   return (
     <>
@@ -68,13 +63,13 @@ export default function ContactPage() {
               <ContactRow icon={<Phone className="h-5 w-5" aria-hidden="true" />} label="Phone">
                 {hasPhone ? (
                   <a
-                    href={clinicConfig.contact.phoneHref}
+                    href={settings.phoneHref}
                     className="font-medium hover:text-teal-deep"
                   >
-                    {clinicConfig.contact.phoneDisplay}
+                    {settings.phoneDisplay}
                   </a>
                 ) : (
-                  <span className="text-muted italic">{clinicConfig.contact.phoneDisplay}</span>
+                  <span className="text-muted italic">{settings.phoneDisplay}</span>
                 )}
               </ContactRow>
 
@@ -90,10 +85,10 @@ export default function ContactPage() {
               <ContactRow icon={<Mail className="h-5 w-5" aria-hidden="true" />} label="Email">
                 {hasEmail ? (
                   <a
-                    href={`mailto:${clinicConfig.contact.email}`}
+                    href={`mailto:${settings.email}`}
                     className="hover:text-teal-deep"
                   >
-                    {clinicConfig.contact.email}
+                    {settings.email}
                   </a>
                 ) : (
                   <span className="text-sm text-muted italic">[EMAIL TO BE CONFIRMED]</span>
@@ -103,9 +98,9 @@ export default function ContactPage() {
               {/* Address */}
               <ContactRow icon={<MapPin className="h-5 w-5" aria-hidden="true" />} label="Address">
                 <address className="not-italic text-navy">
-                  {clinicConfig.address.line1}
+                  {settings.addressLine1}
                   <br />
-                  {clinicConfig.address.line2}
+                  {settings.addressLine2}
                 </address>
               </ContactRow>
 
@@ -121,11 +116,6 @@ export default function ContactPage() {
                     </li>
                   ))}
                 </ul>
-                {clinicConfig.hours.length === 0 && (
-                  <p className="mt-2 text-xs text-muted italic">
-                    Hours to be confirmed and updated before launch.
-                  </p>
-                )}
               </ContactRow>
             </div>
 
@@ -133,7 +123,7 @@ export default function ContactPage() {
             <div className="mt-6 flex flex-wrap gap-3">
               {hasDirectionsLink ? (
                 <a
-                  href={clinicConfig.address.directionsLink}
+                  href={settings.directionsLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-pill bg-teal-deep px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal min-h-tap"
@@ -143,7 +133,7 @@ export default function ContactPage() {
                 </a>
               ) : hasMapsLink ? (
                 <a
-                  href={clinicConfig.address.mapsLink}
+                  href={settings.mapsLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-pill bg-teal-deep px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal min-h-tap"

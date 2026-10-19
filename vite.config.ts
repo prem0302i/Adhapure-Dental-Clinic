@@ -12,4 +12,14 @@ export default defineConfig({
   server: {
     host: true,
   },
+  envPrefix: ["VITE_", "NEXT_PUBLIC_"],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          supabase: ["@supabase/supabase-js"],
+        },
+      },
+    },
+  },
 });

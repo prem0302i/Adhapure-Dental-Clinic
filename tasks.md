@@ -40,6 +40,19 @@ Time estimate: 10 to 12 working days in total.
 - [x] Prepare deployment and handover instructions; deploy only with owner approval
 - **Deliverable:** tested website with complete handover guide, awaiting verified client data and launch approval
 
+## Stage 4: Admin Content Management (Extra Scope Approved)
+- [x] Snapshot Stage 3 git state (commit `877554d`)
+- [x] Supabase integration with Row Level Security (RLS) & migration SQL
+- [x] Admin authentication at `/admin/login` with allow-listed `admins` table verification
+- [x] Protected `/admin` layout with 15-minute inactivity session timeout
+- [x] Image storage helper with 5MB validation, JPEG/PNG/WebP checks, and alt-text requirement
+- [x] Admin screens: Dashboard, Doctors, Treatments, Smile Gallery (with mandatory consent warning), About Content, Clinic Settings, Opening Hours
+- [x] Data layer (`src/lib/content.ts`) with seamless fallback to `clinic-config.ts` when DB is empty/unreachable
+- [x] Public components connected without layout or style disruption
+- [x] Idempotent seed script (`supabase/seed.sql`) and setup documentation (`ADMIN.md`)
+- [x] Tested auth redirects, unit validation tests, fallback integrity, and responsive layout across 375px and 1280px
+- **Deliverable:** complete protected admin portal with full database schema and documentation
+
 ## Support
 14 days of bug fixes for the agreed deliverables after launch.
 

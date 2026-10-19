@@ -2,9 +2,11 @@ import { UserRound } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { PlaceholderNotice } from "@/components/ui/Placeholder";
-import { placeholderDoctors } from "@/lib/clinic-config";
+import { useDoctors } from "@/lib/content";
 
 export function TeamPreview() {
+  const { doctors } = useDoctors();
+  const displayDoctors = doctors.slice(0, 2);
   return (
     <section className="section-gap">
       <div className="container-wide">
@@ -22,7 +24,7 @@ export function TeamPreview() {
         />
 
         <div className="mt-8 grid gap-6 sm:grid-cols-2">
-          {placeholderDoctors.map((doc) => (
+          {displayDoctors.map((doc) => (
             <div key={doc.slug} className="rounded-xl border border-line bg-white p-6">
               <div className="flex items-center gap-4">
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-teal-tint text-teal-deep">

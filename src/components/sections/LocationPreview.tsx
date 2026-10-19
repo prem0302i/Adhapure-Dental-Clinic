@@ -2,16 +2,17 @@ import { MapPin, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Placeholder } from "@/components/ui/Placeholder";
-import { clinicConfig } from "@/lib/clinic-config";
+import { useClinicSettings } from "@/lib/content";
 
 export function LocationPreview() {
-  const hasMaps = Boolean(clinicConfig.address.mapsLink);
+  const { settings } = useClinicSettings();
+  const hasMaps = Boolean(settings.mapsLink);
   return (
     <section className="section-gap">
       <div className="container-wide grid gap-10 md:grid-cols-2 md:items-center">
         <div>
           <SectionHeading title="Where to find us">
-            {clinicConfig.address.line1}, {clinicConfig.address.line2}
+            {settings.addressLine1}, {settings.addressLine2}
           </SectionHeading>
           <p className="mt-4 text-muted">
             Opening hours will be confirmed by the clinic and shown here.
@@ -22,7 +23,7 @@ export function LocationPreview() {
             </Button>
             {hasMaps && (
               <a
-                href={clinicConfig.address.mapsLink}
+                href={settings.mapsLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-pill bg-teal-deep px-5 py-2.5 text-[0.95rem] font-medium text-white transition-colors hover:bg-teal min-h-tap"

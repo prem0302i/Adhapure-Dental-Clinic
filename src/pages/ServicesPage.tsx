@@ -19,7 +19,8 @@ import { Button } from "@/components/ui/Button";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { PlaceholderNotice } from "@/components/ui/Placeholder";
 import { PageMeta } from "@/components/ui/PageMeta";
-import { services, pageMeta, buildWhatsAppUrl } from "@/lib/clinic-config";
+import { pageMeta, buildWhatsAppUrl } from "@/lib/clinic-config";
+import { useTreatments } from "@/lib/content";
 
 const iconMap: Record<string, LucideIcon> = {
   Stethoscope,
@@ -36,6 +37,7 @@ const iconMap: Record<string, LucideIcon> = {
 
 export default function ServicesPage() {
   const meta = pageMeta["/services"];
+  const { treatments } = useTreatments();
   // Allow pre-selecting a service via ?service=slug (used by appointment links)
   const [searchParams] = useSearchParams();
   const highlighted = searchParams.get("service");
@@ -61,7 +63,7 @@ export default function ServicesPage() {
       <section className="section-gap">
         <div className="container-wide">
           <ul className="divide-y divide-line border-y border-line">
-            {services.map((service) => {
+            {treatments.map((service) => {
               const Icon = iconMap[service.icon] ?? Circle;
               const isHighlighted = highlighted === service.slug;
               const waMessage = `Hello, I would like to enquire about ${service.name} at your dental clinic.`;

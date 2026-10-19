@@ -14,7 +14,7 @@ import {
   Smile,
   Circle,
 } from "lucide-react";
-import { services } from "@/lib/clinic-config";
+import { useTreatments } from "@/lib/content";
 import { Button } from "@/components/ui/Button";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -34,6 +34,7 @@ const iconMap: Record<string, LucideIcon> = {
 };
 
 export function TreatmentsOverview() {
+  const { treatments } = useTreatments();
   return (
     <section className="section-gap">
       <div className="container-wide">
@@ -44,7 +45,7 @@ export function TreatmentsOverview() {
         <PlaceholderNotice message="The services below are example categories. They will be replaced with the clinic's confirmed treatment list." />
 
         <ul className="mt-8 divide-y divide-line border-y border-line">
-          {services.map((service) => {
+          {treatments.map((service) => {
             const Icon = iconMap[service.icon] ?? Circle;
             return (
               <li key={service.slug} className="py-5">

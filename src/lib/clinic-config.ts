@@ -48,8 +48,9 @@ export const clinicConfig = {
 export function buildWhatsAppUrl(
   message: string =
     "Hello, I would like to enquire about an appointment at your dental clinic.",
+  customNumber?: string,
 ): string {
-  const number = clinicConfig.contact.whatsappNumber;
+  const number = customNumber?.trim() || clinicConfig.contact.whatsappNumber;
   const encoded = encodeURIComponent(message);
   return number ? `https://wa.me/${number}?text=${encoded}` : `https://wa.me/?text=${encoded}`;
 }

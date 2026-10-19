@@ -2,11 +2,9 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { X, ChevronLeft, ChevronRight, ImageOff } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { PageMeta } from "@/components/ui/PageMeta";
-import { galleryCases, pageMeta } from "@/lib/clinic-config";
+import { pageMeta } from "@/lib/clinic-config";
+import { useGalleryCases } from "@/lib/content";
 import type { GalleryCase } from "@/types";
-
-/** Only display cases where the patient has given confirmed consent. */
-const approvedCases = galleryCases.filter((c) => c.consentConfirmed);
 
 // ---------------------------------------------------------------------------
 // Lightbox
@@ -244,6 +242,8 @@ function GalleryCard({ item, index, onOpen }: GalleryCardProps) {
 
 export default function GalleryPage() {
   const meta = pageMeta["/gallery"];
+  const { cases } = useGalleryCases();
+  const approvedCases = cases.filter((c) => c.consentConfirmed);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   return (

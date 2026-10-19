@@ -1,5 +1,6 @@
 import { MessageCircle } from "lucide-react";
 import { buildWhatsAppUrl } from "@/lib/clinic-config";
+import { useClinicSettings } from "@/lib/content";
 
 interface WhatsAppButtonProps {
   message?: string;
@@ -14,7 +15,8 @@ export function WhatsAppButton({
   variant = "solid",
   className = "",
 }: WhatsAppButtonProps) {
-  const href = buildWhatsAppUrl(message);
+  const { settings } = useClinicSettings();
+  const href = buildWhatsAppUrl(message, settings.whatsappNumber);
   const base =
     "inline-flex items-center justify-center gap-2 rounded-pill font-medium transition-colors duration-200 min-h-tap focus-visible:outline-none";
   const styles =

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Outlet } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 
@@ -20,6 +20,18 @@ import GalleryPage from "@/pages/GalleryPage";
 import AppointmentPage from "@/pages/AppointmentPage";
 import ContactPage from "@/pages/ContactPage";
 import PrivacyPage from "@/pages/PrivacyPage";
+
+// Admin Portal Components
+import { AdminAuthProvider } from "@/context/AdminAuthContext";
+import { AdminLayout } from "@/components/admin/AdminLayout";
+import AdminLoginPage from "@/pages/admin/AdminLoginPage";
+import AdminDashboard from "@/pages/admin/AdminDashboard";
+import AdminDoctorsPage from "@/pages/admin/AdminDoctorsPage";
+import AdminTreatmentsPage from "@/pages/admin/AdminTreatmentsPage";
+import AdminGalleryPage from "@/pages/admin/AdminGalleryPage";
+import AdminAboutPage from "@/pages/admin/AdminAboutPage";
+import AdminSettingsPage from "@/pages/admin/AdminSettingsPage";
+import AdminHoursPage from "@/pages/admin/AdminHoursPage";
 
 import { pageMeta } from "@/lib/clinic-config";
 
@@ -60,20 +72,46 @@ function NotFound() {
   );
 }
 
+function PublicLayout() {
+  return (
+    <div className="flex min-h-screen flex-col">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-pill focus:bg-navy focus:px-4 focus:py-2 focus:text-white"
+      >
+        Skip to content
+      </a>
+      <Header />
+      <main id="main" className="flex-1">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
 export default function App() {
   return (
-    <BrowserRouter>
-      <ScrollToTop />
-      <div className="flex min-h-screen flex-col">
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-pill focus:bg-navy focus:px-4 focus:py-2 focus:text-white"
-        >
-          Skip to content
-        </a>
-        <Header />
-        <main id="main" className="flex-1">
-          <Routes>
+    <AdminAuthProvider>
+      <BrowserRouter>
+        <ScrollToTop />
+        <Routes>
+          {/* Admin Login Route (Unauthenticated entry) */}
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+
+          {/* Protected Admin Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="doctors" element={<AdminDoctorsPage />} />
+            <Route path="treatments" element={<AdminTreatmentsPage />} />
+            <Route path="gallery" element={<AdminGalleryPage />} />
+            <Route path="about" element={<AdminAboutPage />} />
+            <Route path="settings" element={<AdminSettingsPage />} />
+            <Route path="hours" element={<AdminHoursPage />} />
+          </Route>
+
+          {/* Public Website Routes */}
+          <Route element={<PublicLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/services" element={<ServicesPage />} />
@@ -83,10 +121,9 @@ export default function App() {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </BrowserRouter>
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AdminAuthProvider>
   );
 }

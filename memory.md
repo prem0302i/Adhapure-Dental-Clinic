@@ -5,6 +5,114 @@ outstanding items. The most recent stage is at the top.
 
 ---
 
+## Stage 4: Protected Admin Content Management — COMPLETE
+
+### What was built
+
+1. **Database Schema & Row Level Security (RLS)**:
+   - Created [`supabase/migrations/20261020000000_stage4_admin_schema.sql`](file:///d:/dental%20clinic/supabase/migrations/20261020000000_stage4_admin_schema.sql) defining tables for `admins`, `doctors`, `treatments`, `about_content`, `gallery_cases`, `clinic_settings`, and `opening_hours`.
+   - Enabled Row Level Security on every table. Public users have read-only access to published rows.
+   - Strict database-level constraint on `gallery_cases`: Public read policy enforces `is_published = true AND consent_confirmed = true`.
+   - Created storage buckets `doctor-photos` and `gallery-cases` with public read and admin-only upload/delete policies.
+2. **Authentication & Session Management**:
+   - Built [`src/context/AdminAuthContext.tsx`](file:///d:/dental%20clinic/src/context/AdminAuthContext.tsx) with Supabase Auth integration.
+   - Allow-list enforcement: Valid Supabase Auth users who are NOT in `public.admins` are immediately logged out and shown an access denied banner. Public sign-up is disabled.
+   - Inactivity session timeout: 15 minutes of inactivity automatically triggers sign-out and displays an expiration notification.
+3. **Protected Admin Portal**:
+   - Layout [`src/components/admin/AdminLayout.tsx`](file:///d:/dental%20clinic/src/components/admin/AdminLayout.tsx): Protects all sub-routes, enforces `noindex,nofollow`, provides mobile-friendly navigation tabs, and displays a prominent "View public site" link.
+   - Login page [`src/pages/admin/AdminLoginPage.tsx`](file:///d:/dental%20clinic/src/pages/admin/AdminLoginPage.tsx): Email and password form, allow-list rejection banner, and link to return to the public site.
+   - Dashboard [`src/pages/admin/AdminDashboard.tsx`](file:///d:/dental%20clinic/src/pages/admin/AdminDashboard.tsx): Live count summaries and direct navigation shortcuts to each section.
+   - Doctors management [`src/pages/admin/AdminDoctorsPage.tsx`](file:///d:/dental%20clinic/src/pages/admin/AdminDoctorsPage.tsx): List, add, edit, reorder, delete (with confirmation dialog), and publish/unpublish toggle.
+   - Treatments management [`src/pages/admin/AdminTreatmentsPage.tsx`](file:///d:/dental%20clinic/src/pages/admin/AdminTreatmentsPage.tsx): List, add, edit, slug generator, icon picker, delete with confirmation, and publish toggle.
+   - Smile Gallery management [`src/pages/admin/AdminGalleryPage.tsx`](file:///d:/dental%20clinic/src/pages/admin/AdminGalleryPage.tsx): Before & After photo uploads, caption, consent confirmed toggle with mandatory patient consent warning, and delete with confirmation.
+   - About Content management [`src/pages/admin/AdminAboutPage.tsx`](file:///d:/dental%20clinic/src/pages/admin/AdminAboutPage.tsx): Intro paragraph, philosophy pillars, facilities list, and unsaved changes notice.
+   - Clinic Settings management [`src/pages/admin/AdminSettingsPage.tsx`](file:///d:/dental%20clinic/src/pages/admin/AdminSettingsPage.tsx): Clinic name, phone, WhatsApp number, email, address, Google Maps and Directions links.
+   - Opening Hours management [`src/pages/admin/AdminHoursPage.tsx`](file:///d:/dental%20clinic/src/pages/admin/AdminHoursPage.tsx): Edit schedule, mark days closed, add notes.
+4. **Dynamic Data Layer with Zero-Downtime Fallback**:
+   - Built [`src/lib/content.ts`](file:///d:/dental%20clinic/src/lib/content.ts) providing `useDoctors`, `useTreatments`, `useGalleryCases`, `useOpeningHours`, `useClinicSettings`, and `useAboutContent`.
+   - Every hook initializes with `clinic-config.ts` defaults for instantaneous rendering with zero layout shift.
+   - If the database is empty, unconfigured, or unreachable, public pages gracefully fall back to `clinic-config.ts` defaults.
+   - Reactive revalidation: Admin mutations dispatch `clinic:content-updated` events, prompting active public views to refresh data immediately without redeploying.
+5. **Storage & Validation Helper**:
+   - Created [`src/lib/storage.ts`](file:///d:/dental%20clinic/src/lib/storage.ts) enforcing a 5 MB file size limit, JPEG/PNG/WebP MIME type checks, and mandatory alt text/captions.
+6. **Documentation & Seed Script**:
+   - Created [`ADMIN.md`](file:///d:/dental%20clinic/ADMIN.md) with complete instructions on creating the first admin, running migrations, and managing credentials.
+   - Created [`supabase/seed.sql`](file:///d:/dental%20clinic/supabase/seed.sql) with idempotent initial placeholder rows.
+
+---
+
+### Every existing file modified (and why)
+
+| File | Changes Made | Rationale |
+|---|---|---|
+| `vite.config.ts` | Added `envPrefix: ['VITE_', 'NEXT_PUBLIC_']` and `manualChunks` for Supabase | Allowed reading existing `.env` variables and kept client bundle size optimal ($< 335\text{KB}$). |
+| `src/vite-env.d.ts` | Declared types for Supabase environment variables | Ensured TypeScript passes with `noUnusedLocals` and strict type checks. |
+| `.env.example` | Added Supabase configuration templates | Documented required variables without leaking secrets or real keys. |
+| `src/lib/clinic-config.ts` | Added optional `customNumber` parameter to `buildWhatsAppUrl()` | Allowed dynamic WhatsApp number override from clinic settings while retaining fallback. |
+| `src/components/ui/WhatsAppButton.tsx` | Bound to `useClinicSettings()` | Reads WhatsApp number dynamically from database settings, falling back to `VITE_WHATSAPP_NUMBER`. |
+| `src/App.tsx` | Added `/admin/login` and `/admin/*` routes; wrapped in `AdminAuthProvider` and `PublicLayout` | Protected admin routes and isolated public site navigation. |
+| `src/pages/DoctorsPage.tsx` | Replaced static array with `useDoctors()` | Enabled dynamic content loading with zero styling or markup alterations. |
+| `src/components/sections/TeamPreview.tsx` | Replaced static array with `useDoctors()` | Enabled homepage team preview to reflect published doctors dynamically. |
+| `src/pages/ServicesPage.tsx` | Replaced static array with `useTreatments()` | Enabled dynamic service management with zero styling or markup alterations. |
+| `src/components/sections/TreatmentsOverview.tsx` | Replaced static array with `useTreatments()` | Enabled homepage treatments list to reflect published services. |
+| `src/pages/GalleryPage.tsx` | Replaced static array with `useGalleryCases()` | Displays live consented gallery cases with automatic consent filtering. |
+| `src/pages/AboutPage.tsx` | Bound to `useAboutContent()` | Displays live philosophy pillars and facilities from database with default fallbacks. |
+| `src/pages/ContactPage.tsx` | Bound to `useOpeningHours()` and `useClinicSettings()` | Displays live opening hours, phone numbers, and Maps links. |
+| `src/components/layout/Footer.tsx` | Bound to `useClinicSettings()` | Displays live clinic name, address, and phone numbers in footer. |
+| `src/components/sections/LocationPreview.tsx` | Bound to `useClinicSettings()` | Displays live clinic address and Maps links on homepage. |
+| `tasks.md` | Added Stage 4 task checklist | Kept task tracking up to date. |
+
+---
+
+### What was tested and how
+
+1. **Git State Snapshot**:
+   - Initialized Git and created commit `877554d` (`chore: snapshot Stage 3 working state before Stage 4 admin panel`) so Stage 3 can be restored at any time.
+2. **Automated Unit Testing (`stage4_tests.mjs`)**:
+   - Image validation: Verified non-allowed file types (PDF, GIF, SVG) are rejected; verified files $> 5\text{MB}$ are rejected; verified missing alt text is rejected; verified valid JPEG/PNG/WebP $\le 5\text{MB}$ are accepted.
+   - Consent filtering: Verified cases with `consent_confirmed = false` are omitted from public display even when marked as `is_published = true`.
+   - Fallback resilience: Verified data layer functions return complete default records from `clinic-config.ts` when database returns `[]`, `null`, or throws network errors.
+3. **Interactive Browser Testing (`browser_subagent`)**:
+   - Verified that unauthenticated navigation to `/admin` immediately redirects to `/admin/login`.
+   - Verified that `/admin/login` renders email and password fields, and that clicking "Return to public website" navigates back to `/`.
+   - Tested public website at 375px mobile viewport (`/doctors`, `/services`) and 1280px desktop viewport (`/about`, `/gallery`, `/contact`): verified zero layout regressions, zero overflow, and clean fallback rendering.
+   - Verified browser console: zero errors.
+4. **Build & Typecheck**:
+   - `npm run typecheck`: Passed with exit code 0.
+   - `npm run build`: Production build succeeded in 2.41s.
+
+---
+
+### What could not be tested
+
+- Direct automated execution of the SQL migration against the live Supabase project was restricted by the Supabase MCP token (`ProtocolError: You do not have permission to perform this action`). The complete SQL migration file and seed script are provided in [`supabase/migrations/`](file:///d:/dental%20clinic/supabase/migrations/20261020000000_stage4_admin_schema.sql) and [`supabase/seed.sql`](file:///d:/dental%20clinic/supabase/seed.sql) to be run directly in the Supabase Dashboard SQL Editor.
+
+---
+
+### Manual setup steps required in Supabase
+
+1. Open the [Supabase Dashboard](https://supabase.com/dashboard) and navigate to your project's **SQL Editor**.
+2. Run the migration script: [`supabase/migrations/20261020000000_stage4_admin_schema.sql`](file:///d:/dental%20clinic/supabase/migrations/20261020000000_stage4_admin_schema.sql).
+3. (Optional) Run the seed script: [`supabase/seed.sql`](file:///d:/dental%20clinic/supabase/seed.sql).
+4. Create the first admin:
+   - Go to **Authentication** > **Users** > **Add User** > **Create User**.
+   - Copy the User UID.
+   - Run in SQL Editor:
+     ```sql
+     INSERT INTO public.admins (user_id, email)
+     VALUES ('YOUR-USER-UID', 'admin@yourclinic.com');
+     ```
+5. You can now log in at `/admin/login`.
+
+---
+
+### Known limitations
+
+1. **Client-Side SPA Architecture**: In this Vite SPA, authentication state is maintained via the `@supabase/supabase-js` client. PostgreSQL Row Level Security enforces all authorization at the database level.
+2. **Inactivity Timer Scope**: The 15-minute inactivity timer operates per open browser tab/window.
+
+---
+
 ## Stage 3: Testing and launch — COMPLETE (Awaiting client content & launch approval)
 
 ### What was tested and how

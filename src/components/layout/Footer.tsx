@@ -1,16 +1,18 @@
 import { Link } from "react-router-dom";
 import { Phone, MapPin, Clock } from "lucide-react";
-import { clinicConfig, navItems } from "@/lib/clinic-config";
+import { navItems } from "@/lib/clinic-config";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
+import { useClinicSettings } from "@/lib/content";
 
 export function Footer() {
+  const { settings } = useClinicSettings();
   return (
     <footer className="bg-navy text-white">
       <div className="container-wide py-14">
         <div className="grid gap-10 md:grid-cols-3">
           <div>
-            <p className="font-serif text-xl font-semibold">{clinicConfig.name}</p>
-            <p className="mt-2 text-sm text-white/70">{clinicConfig.tagline}</p>
+            <p className="font-serif text-xl font-semibold">{settings.name}</p>
+            <p className="mt-2 text-sm text-white/70">{settings.tagline}</p>
             <div className="mt-5">
               <WhatsAppButton label="Chat on WhatsApp" />
             </div>
@@ -45,14 +47,14 @@ export function Footer() {
             <ul className="mt-3 space-y-3 text-white/75">
               <li className="flex items-start gap-2">
                 <Phone className="mt-0.5 h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
-                <span>{clinicConfig.contact.phoneDisplay}</span>
+                <span>{settings.phoneDisplay}</span>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
                 <span>
-                  {clinicConfig.address.line1}
+                  {settings.addressLine1}
                   <br />
-                  {clinicConfig.address.line2}
+                  {settings.addressLine2}
                 </span>
               </li>
               <li className="flex items-start gap-2">
@@ -65,7 +67,7 @@ export function Footer() {
 
         <div className="mt-12 border-t border-white/15 pt-6 text-xs text-white/60">
           <p>
-            © {new Date().getFullYear()} {clinicConfig.name}. All rights reserved.{" "}
+            © {new Date().getFullYear()} {settings.name}. All rights reserved.{" "}
             <Link to="/privacy" className="underline hover:text-white">
               Privacy policy
             </Link>{" "}

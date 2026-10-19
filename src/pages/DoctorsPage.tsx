@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/Button";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { PlaceholderNotice } from "@/components/ui/Placeholder";
 import { PageMeta } from "@/components/ui/PageMeta";
-import { placeholderDoctors, pageMeta } from "@/lib/clinic-config";
+import { pageMeta } from "@/lib/clinic-config";
+import { useDoctors } from "@/lib/content";
 import type { Doctor } from "@/types";
 
 interface DoctorCardProps {
@@ -92,6 +93,7 @@ function DoctorCard({ doctor }: DoctorCardProps) {
 
 export default function DoctorsPage() {
   const meta = pageMeta["/doctors"];
+  const { doctors } = useDoctors();
   return (
     <>
       <PageMeta title={meta.title} description={meta.description} />
@@ -113,7 +115,7 @@ export default function DoctorsPage() {
       <section className="section-gap">
         <div className="container-wide">
           <div className="grid gap-8 md:grid-cols-2">
-            {placeholderDoctors.map((doc) => (
+            {doctors.map((doc) => (
               <DoctorCard key={doc.slug} doctor={doc} />
             ))}
           </div>
