@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { uploadImage } from "@/lib/storage";
-import { notifyContentUpdated } from "@/lib/content";
+import { invalidateGalleryCache } from "@/lib/content";
 
 interface GalleryRecord {
   id: string;
@@ -121,7 +121,7 @@ export default function AdminGalleryPage() {
       setCases((list) =>
         list.map((c) => (c.id === item.id ? { ...c, consent_confirmed: nextConsent } : c)),
       );
-      notifyContentUpdated();
+      invalidateGalleryCache();
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : "Failed to update consent state.");
     }
@@ -140,7 +140,7 @@ export default function AdminGalleryPage() {
       setCases((list) =>
         list.map((c) => (c.id === item.id ? { ...c, is_published: nextPublish } : c)),
       );
-      notifyContentUpdated();
+      invalidateGalleryCache();
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : "Failed to update publish state.");
     }
@@ -212,7 +212,7 @@ export default function AdminGalleryPage() {
 
       setIsEditing(false);
       await loadCases();
-      notifyContentUpdated();
+      invalidateGalleryCache();
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : "Failed to save gallery case.");
     } finally {
@@ -230,7 +230,7 @@ export default function AdminGalleryPage() {
       setCases((list) => list.filter((c) => c.id !== deleteTarget.id));
       setDeleteTarget(null);
       setSuccessMsg("Gallery case deleted successfully.");
-      notifyContentUpdated();
+      invalidateGalleryCache();
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : "Failed to delete case.");
     }

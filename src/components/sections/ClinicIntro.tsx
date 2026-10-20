@@ -1,6 +1,6 @@
+import { ShieldCheck, Sparkles, Clock, Heart } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { Placeholder } from "@/components/ui/Placeholder";
 
 export function ClinicIntro() {
   return (
@@ -31,10 +31,38 @@ export function ClinicIntro() {
             </Button>
           </div>
         </div>
+
         <div>
-          <Placeholder label="[CLINIC PHOTO]">
-            A photo of the clinic will appear here once supplied.
-          </Placeholder>
+          <div className="grid grid-cols-2 gap-4 rounded-2xl border border-line bg-white p-6 shadow-sm">
+            <div className="rounded-xl bg-teal-tint/50 p-5">
+              <ShieldCheck className="h-8 w-8 text-teal-deep" aria-hidden="true" />
+              <h3 className="mt-3 font-serif text-base font-semibold text-navy">Strict hygiene</h3>
+              <p className="mt-1 text-xs text-muted leading-relaxed">
+                Hospital-standard infection control and instrument sterilisation.
+              </p>
+            </div>
+            <div className="rounded-xl bg-enamel p-5">
+              <Sparkles className="h-8 w-8 text-teal-deep" aria-hidden="true" />
+              <h3 className="mt-3 font-serif text-base font-semibold text-navy">Modern care</h3>
+              <p className="mt-1 text-xs text-muted leading-relaxed">
+                Precision diagnostics with gentle, minimally invasive techniques.
+              </p>
+            </div>
+            <div className="rounded-xl bg-enamel p-5">
+              <Clock className="h-8 w-8 text-teal-deep" aria-hidden="true" />
+              <h3 className="mt-3 font-serif text-base font-semibold text-navy">Unhurried visits</h3>
+              <p className="mt-1 text-xs text-muted leading-relaxed">
+                Ample time allocated to answer every question and explain options.
+              </p>
+            </div>
+            <div className="rounded-xl bg-teal-tint/50 p-5">
+              <Heart className="h-8 w-8 text-teal-deep" aria-hidden="true" />
+              <h3 className="mt-3 font-serif text-base font-semibold text-navy">Family friendly</h3>
+              <p className="mt-1 text-xs text-muted leading-relaxed">
+                Comfortable environment tailored for nervous patients and children.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>

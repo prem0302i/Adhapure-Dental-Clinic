@@ -18,7 +18,6 @@ import { useTreatments } from "@/lib/content";
 import { Button } from "@/components/ui/Button";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { PlaceholderNotice } from "@/components/ui/Placeholder";
 
 const iconMap: Record<string, LucideIcon> = {
   Stethoscope,
@@ -39,10 +38,8 @@ export function TreatmentsOverview() {
     <section className="section-gap">
       <div className="container-wide">
         <SectionHeading title="Treatments we offer">
-          A range of dental care options. Final services will be confirmed by the clinic.
+          Comprehensive dental care options tailored for your comfort and long-term oral health.
         </SectionHeading>
-
-        <PlaceholderNotice message="The services below are example categories. They will be replaced with the clinic's confirmed treatment list." />
 
         <ul className="mt-8 divide-y divide-line border-y border-line">
           {treatments.map((service) => {

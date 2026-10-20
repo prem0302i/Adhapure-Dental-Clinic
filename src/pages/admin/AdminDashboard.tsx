@@ -14,6 +14,7 @@ import {
   Inbox,
 } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { getInitialClinicSettings } from "@/lib/content";
 
 interface SectionSummary {
   doctorsCount: number;
@@ -33,7 +34,7 @@ export default function AdminDashboard() {
     hoursCount: 0,
     enquiriesCount: 0,
     newEnquiriesCount: 0,
-    clinicName: "[CLINIC NAME]",
+    clinicName: getInitialClinicSettings().name || "Dental Clinic",
   });
   const [loading, setLoading] = useState(true);
 
@@ -61,7 +62,7 @@ export default function AdminDashboard() {
           hoursCount: hoursRes.count ?? 0,
           enquiriesCount: enqRes.count ?? 0,
           newEnquiriesCount: newEnqRes.count ?? 0,
-          clinicName: settingsRes.data?.clinic_name || "[CLINIC NAME]",
+          clinicName: settingsRes.data?.clinic_name || getInitialClinicSettings().name || "Dental Clinic",
         });
       } catch {
         // Fallback gracefully

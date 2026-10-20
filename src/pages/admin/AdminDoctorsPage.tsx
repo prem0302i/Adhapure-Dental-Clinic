@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { uploadImage } from "@/lib/storage";
-import { notifyContentUpdated } from "@/lib/content";
+import { invalidateDoctorsCache } from "@/lib/content";
 
 interface DoctorRecord {
   id: string;
@@ -119,7 +119,7 @@ export default function AdminDoctorsPage() {
       setDoctors((list) =>
         list.map((d) => (d.id === doc.id ? { ...d, is_published: !d.is_published } : d)),
       );
-      notifyContentUpdated();
+      invalidateDoctorsCache();
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : "Failed to update publish state.");
     }
@@ -183,7 +183,7 @@ export default function AdminDoctorsPage() {
 
       setIsEditing(false);
       await loadDoctors();
-      notifyContentUpdated();
+      invalidateDoctorsCache();
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : "Failed to save doctor.");
     } finally {
@@ -201,7 +201,7 @@ export default function AdminDoctorsPage() {
       setDoctors((list) => list.filter((d) => d.id !== deleteTarget.id));
       setDeleteTarget(null);
       setSuccessMsg("Doctor deleted successfully.");
-      notifyContentUpdated();
+      invalidateDoctorsCache();
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : "Failed to delete doctor.");
     }

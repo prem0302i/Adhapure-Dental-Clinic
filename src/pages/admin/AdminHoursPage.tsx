@@ -8,7 +8,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
-import { notifyContentUpdated } from "@/lib/content";
+import { updateCachedOpeningHours } from "@/lib/content";
+import type { HoursEntry } from "@/types";
 
 interface HourRow {
   id?: string;
@@ -121,7 +122,15 @@ export default function AdminHoursPage() {
 
       setSuccessMsg("Opening hours schedule saved successfully.");
       setIsDirty(false);
-      notifyContentUpdated();
+      const updatedHours: HoursEntry[] = hoursList.map((h) => ({
+        day: h.day.trim(),
+        hours: h.is_closed
+          ? "Closed"
+          : h.open_time && h.close_time
+          ? `${h.open_time.trim()} – ${h.close_time.trim()}`
+          : h.note.trim() || "Closed",
+      }));
+      updateCachedOpeningHours(updatedHours);
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : "Failed to save hours.");
     } finally {

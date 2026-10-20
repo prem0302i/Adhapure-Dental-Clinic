@@ -3,10 +3,19 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { clinicConfig, navItems } from "@/lib/clinic-config";
 import { Button } from "@/components/ui/Button";
+import { useClinicSettings } from "@/lib/content";
 
 export function Header() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const { settings } = useClinicSettings();
+
+  const clinicDisplayName =
+    settings.name && !settings.name.startsWith("[")
+      ? settings.name
+      : settings.shortName && !settings.shortName.startsWith("[")
+      ? settings.shortName
+      : clinicConfig.shortName;
 
   useEffect(() => {
     setOpen(false);
@@ -29,9 +38,9 @@ export function Header() {
         <Link
           to="/"
           className="font-serif text-lg font-semibold text-navy md:text-xl"
-          aria-label={`${clinicConfig.name} home`}
+          aria-label={`${clinicDisplayName} home`}
         >
-          {clinicConfig.shortName}
+          {clinicDisplayName}
         </Link>
 
         <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">

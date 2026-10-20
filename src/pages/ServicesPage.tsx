@@ -12,14 +12,12 @@ import {
   Baby,
   Smile,
   Circle,
-  MessageCircle,
 } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
-import { PlaceholderNotice } from "@/components/ui/Placeholder";
 import { PageMeta } from "@/components/ui/PageMeta";
-import { pageMeta, buildWhatsAppUrl } from "@/lib/clinic-config";
+import { pageMeta } from "@/lib/clinic-config";
 import { useTreatments } from "@/lib/content";
 
 const iconMap: Record<string, LucideIcon> = {
@@ -49,13 +47,10 @@ export default function ServicesPage() {
       {/* Page header */}
       <section className="bg-enamel section-gap">
         <div className="container-wide">
-          <PlaceholderNotice message="The services listed below are example categories. They will be replaced with the clinic's confirmed treatment list before launch. No prices or outcomes are shown." />
-          <div className="mt-10">
-            <SectionHeading as="h1" title="Treatments we offer">
-              We provide a range of dental care options for patients of all ages. Our team will
-              explain which treatments are right for you at your appointment.
-            </SectionHeading>
-          </div>
+          <SectionHeading as="h1" title="Treatments we offer">
+            We provide a comprehensive range of dental care options for patients of all ages. Our team will
+            explain which treatments are right for you at your appointment.
+          </SectionHeading>
         </div>
       </section>
 
@@ -83,10 +78,6 @@ export default function ServicesPage() {
                     <div className="flex-1">
                       <h2 className="font-serif text-xl text-navy">{service.name}</h2>
                       <p className="mt-2 text-muted">{service.summary}</p>
-                      <p className="mt-2 text-sm text-muted italic">
-                        No specific outcomes, prices or waiting times are stated — speak with our
-                        team for details relevant to your situation.
-                      </p>
                     </div>
 
                     {/* Actions */}
@@ -98,16 +89,11 @@ export default function ServicesPage() {
                       >
                         Ask about this
                       </Button>
-                      <a
-                        href={buildWhatsAppUrl(waMessage)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={`Chat on WhatsApp about ${service.name}`}
-                        className="inline-flex items-center justify-center gap-2 rounded-pill bg-teal-tint px-5 py-2.5 text-[0.95rem] font-medium text-teal-deep transition-colors hover:bg-teal hover:text-white min-h-tap"
-                      >
-                        <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                        <span>WhatsApp</span>
-                      </a>
+                      <WhatsAppButton
+                        message={waMessage}
+                        label="WhatsApp"
+                        variant="solid"
+                      />
                     </div>
                   </div>
                 </li>

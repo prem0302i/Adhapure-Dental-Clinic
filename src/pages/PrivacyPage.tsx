@@ -1,10 +1,13 @@
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { PlaceholderNotice } from "@/components/ui/Placeholder";
 import { PageMeta } from "@/components/ui/PageMeta";
-import { clinicConfig, pageMeta } from "@/lib/clinic-config";
+import { pageMeta } from "@/lib/clinic-config";
+import { useClinicSettings } from "@/lib/content";
 
 export default function PrivacyPage() {
   const meta = pageMeta["/privacy"];
+  const { settings } = useClinicSettings();
+  const contactEmail = settings.email || "info@clinic.com";
+
   return (
     <>
       <PageMeta
@@ -14,66 +17,61 @@ export default function PrivacyPage() {
 
       <section className="section-gap">
         <div className="container-wide max-w-3xl">
-          <PlaceholderNotice message="This privacy policy is a placeholder. It must be reviewed and approved by the clinic and/or a qualified legal professional before the site goes live." />
+          <SectionHeading as="h1" title="Privacy policy" />
 
-          <div className="mt-10">
-            <SectionHeading as="h1" title="Privacy policy" />
-          </div>
-
-          <div className="mt-8 prose prose-navy max-w-none text-muted space-y-5 text-sm leading-relaxed">
+          <div className="mt-8 prose prose-navy max-w-none text-muted space-y-6 text-sm leading-relaxed">
             <p>
               <strong className="text-navy">Last updated:</strong>{" "}
-              <span className="italic">[DATE TO BE ADDED]</span>
+              <span>{new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}</span>
             </p>
 
             <h2 className="font-serif text-xl text-navy mt-8">What we collect</h2>
             <p>
-              When you submit an appointment enquiry, we collect your name, phone number, and
-              optionally your email address. We do not collect medical history, diagnoses, identity
-              documents, or payment information.
+              When you submit an appointment enquiry through our website, we collect your name, phone number, preferred visit timing, and
+              optionally your email address. We do not collect medical history, clinical records, or payment details through this online enquiry form.
             </p>
 
-            <h2 className="font-serif text-xl text-navy mt-8">How we use it</h2>
+            <h2 className="font-serif text-xl text-navy mt-8">How we use your information</h2>
             <p>
-              We use your contact details solely to respond to your enquiry and to confirm an
-              appointment time. We do not use your details for marketing without your explicit
-              consent.
+              We use the details you provide exclusively to respond to your enquiry, clarify availability, and schedule your dental appointment with {settings.name}. We will never sell, rent, or trade your contact information for marketing.
             </p>
 
-            <h2 className="font-serif text-xl text-navy mt-8">Who we share it with</h2>
+            <h2 className="font-serif text-xl text-navy mt-8">Data sharing and third parties</h2>
             <p>
-              We do not sell or share your personal data with third parties for marketing purposes.
-              Details shared with third-party service providers (such as email delivery services)
-              will be listed here once confirmed.{" "}
-              <span className="italic text-muted">[TO BE COMPLETED]</span>
+              Personal data submitted via our website is accessed only by authorized clinic administration and healthcare personnel. It is not shared with any unaffiliated third parties except where required by law.
             </p>
 
-            <h2 className="font-serif text-xl text-navy mt-8">How long we keep it</h2>
+            <h2 className="font-serif text-xl text-navy mt-8">Data retention</h2>
             <p>
-              <span className="italic">[Retention period to be confirmed by the clinic]</span>
+              Enquiry messages and contact records are retained in our secure appointment management system for as long as necessary to coordinate your patient care, after which they are securely archived or deleted in accordance with healthcare records regulations.
             </p>
 
             <h2 className="font-serif text-xl text-navy mt-8">Your rights</h2>
             <p>
-              You have the right to access, correct or request deletion of your personal
-              information. To make a request, contact us at{" "}
-              <span className="italic">
-                {clinicConfig.contact.email || "[EMAIL TO BE CONFIRMED]"}
-              </span>
+              You have the right to request access to the personal data we hold about you, or to request corrections or deletion. To submit a request, please reach out directly to our privacy officer at{" "}
+              <a href={`mailto:${contactEmail}`} className="text-teal-deep font-medium underline">
+                {contactEmail}
+              </a>
               .
             </p>
 
-            <h2 className="font-serif text-xl text-navy mt-8">Cookies</h2>
+            <h2 className="font-serif text-xl text-navy mt-8">Cookies and analytics</h2>
             <p>
-              <span className="italic">[Cookie usage to be confirmed and documented]</span>
+              Our website uses only essential session cookies to ensure standard site performance, secure navigation, and reliable form submission. We do not track you across unrelated third-party websites.
             </p>
 
-            <h2 className="font-serif text-xl text-navy mt-8">Contact</h2>
+            <h2 className="font-serif text-xl text-navy mt-8">Contact us</h2>
             <p>
-              For privacy-related queries, contact us at{" "}
-              <span className="italic">
-                {clinicConfig.contact.email || "[EMAIL TO BE CONFIRMED]"}
-              </span>
+              If you have any questions regarding this Privacy Policy or how your information is handled, please contact us at{" "}
+              <a href={`mailto:${contactEmail}`} className="text-teal-deep font-medium underline">
+                {contactEmail}
+              </a>{" "}
+              {settings.phoneDisplay && (
+                <>
+                  or call us at{" "}
+                  <span className="text-navy font-medium">{settings.phoneDisplay}</span>
+                </>
+              )}
               .
             </p>
           </div>

@@ -2,7 +2,6 @@ import { UserRound } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
-import { PlaceholderNotice } from "@/components/ui/Placeholder";
 import { PageMeta } from "@/components/ui/PageMeta";
 import { pageMeta } from "@/lib/clinic-config";
 import { useDoctors } from "@/lib/content";
@@ -13,9 +12,7 @@ interface DoctorCardProps {
 }
 
 function DoctorCard({ doctor }: DoctorCardProps) {
-  const waMessage = doctor.placeholder
-    ? "Hello, I would like to enquire about an appointment at your dental clinic."
-    : `Hello, I would like to enquire about an appointment with ${doctor.name}.`;
+  const waMessage = `Hello, I would like to enquire about an appointment with ${doctor.name}.`;
 
   return (
     <article
@@ -25,7 +22,7 @@ function DoctorCard({ doctor }: DoctorCardProps) {
       {/* Photo / Avatar */}
       <div className="flex items-start gap-5">
         <div
-          className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-teal-tint text-teal-deep"
+          className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-teal-tint text-teal-deep"
           aria-hidden="true"
         >
           {doctor.photo ? (
@@ -63,14 +60,8 @@ function DoctorCard({ doctor }: DoctorCardProps) {
       </div>
 
       {/* Bio */}
-      <p className="mt-5 flex-1 text-sm text-muted leading-relaxed">{doctor.bio}</p>
-
-      {/* Placeholder notice on placeholder cards */}
-      {doctor.placeholder && (
-        <p className="mt-3 rounded-md border border-dashed border-line bg-enamel px-3 py-2 text-xs text-muted">
-          This is a placeholder profile. Real name, qualifications and photo will be shown once
-          verified details are supplied by the clinic.
-        </p>
+      {doctor.bio && (
+        <p className="mt-5 flex-1 text-sm text-muted leading-relaxed">{doctor.bio}</p>
       )}
 
       {/* Actions */}
@@ -93,7 +84,8 @@ function DoctorCard({ doctor }: DoctorCardProps) {
 
 export default function DoctorsPage() {
   const meta = pageMeta["/doctors"];
-  const { doctors } = useDoctors();
+  const { doctors, loading } = useDoctors();
+
   return (
     <>
       <PageMeta title={meta.title} description={meta.description} />
@@ -101,29 +93,27 @@ export default function DoctorsPage() {
       {/* Page header */}
       <section className="bg-enamel section-gap">
         <div className="container-wide">
-          <PlaceholderNotice message="Doctor profiles below are placeholders. Names, qualifications, specialisations and photos will be shown once verified details are supplied by the clinic." />
-          <div className="mt-10">
-            <SectionHeading as="h1" title="Meet our doctors">
-              Our team of qualified dentists is here to provide gentle, professional care for you
-              and your family.
-            </SectionHeading>
-          </div>
+          <SectionHeading as="h1" title="Meet our doctors">
+            Our team of qualified dentists is dedicated to providing gentle, professional dental care for you and your family.
+          </SectionHeading>
         </div>
       </section>
 
       {/* Doctor cards */}
       <section className="section-gap">
         <div className="container-wide">
-          <div className="grid gap-8 md:grid-cols-2">
-            {doctors.map((doc) => (
-              <DoctorCard key={doc.slug} doctor={doc} />
-            ))}
-          </div>
-
-          <p className="mt-10 max-w-2xl text-sm text-muted italic">
-            All qualifications and professional registrations will be verified before being published.
-            No credentials are displayed until confirmed.
-          </p>
+          {doctors.length > 0 ? (
+            <div className="grid gap-8 md:grid-cols-2">
+              {doctors.map((doc) => (
+                <DoctorCard key={doc.slug} doctor={doc} />
+              ))}
+            </div>
+          ) : !loading ? (
+            <div className="rounded-xl border border-line bg-enamel p-10 text-center text-muted">
+              <p className="font-serif text-lg text-navy">Clinicians list</p>
+              <p className="mt-2 text-sm">Please enquire with our reception team to learn more about our practicing dentists.</p>
+            </div>
+          ) : null}
         </div>
       </section>
 

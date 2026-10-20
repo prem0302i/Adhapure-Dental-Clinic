@@ -14,6 +14,7 @@ import {
   type ValidationErrors,
 } from "@/lib/validation";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { useClinicSettings, useTreatments } from "@/lib/content";
 
 // ---------------------------------------------------------------------------
 // Rate limiting — very basic client-side guard (in-memory, resets on refresh)
@@ -99,6 +100,9 @@ const EMPTY: EnquiryInput = {
 export default function AppointmentPage() {
   const meta = pageMeta["/appointment"];
   const [searchParams] = useSearchParams();
+  const { settings } = useClinicSettings();
+  const { treatments } = useTreatments();
+  const treatmentList = treatments.length > 0 ? treatments : services;
   const preselectedTreatment = searchParams.get("treatment") ?? "";
 
   const [values, setValues] = useState<EnquiryInput>({
@@ -298,12 +302,12 @@ export default function AppointmentPage() {
                 </p>
                 <div className="mt-4 flex flex-wrap gap-3">
                   <WhatsAppButton label="Chat on WhatsApp" />
-                  {clinicConfig.contact.phoneHref && (
+                  {(settings.phoneHref || clinicConfig.contact.phoneHref) && (
                     <a
-                      href={clinicConfig.contact.phoneHref}
+                      href={settings.phoneHref || clinicConfig.contact.phoneHref}
                       className="inline-flex items-center gap-2 rounded-pill bg-navy px-5 py-2.5 text-sm font-medium text-white hover:bg-navy-soft min-h-tap"
                     >
-                      Call {clinicConfig.contact.phoneDisplay}
+                      Call {settings.phoneDisplay || clinicConfig.contact.phoneDisplay}
                     </a>
                   )}
                 </div>
@@ -466,7 +470,7 @@ export default function AppointmentPage() {
                   <option value="" disabled>
                     Select a treatment
                   </option>
-                  {services.map((s) => (
+                  {treatmentList.map((s) => (
                     <option key={s.slug} value={s.slug}>
                       {s.name}
                     </option>

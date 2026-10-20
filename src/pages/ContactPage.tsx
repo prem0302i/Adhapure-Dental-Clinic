@@ -1,10 +1,9 @@
-import { Phone, Mail, MapPin, Clock, Navigation, MessageCircle } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, Navigation, ExternalLink, MessageCircle } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
-import { Placeholder } from "@/components/ui/Placeholder";
 import { PageMeta } from "@/components/ui/PageMeta";
-import { clinicConfig, pageMeta } from "@/lib/clinic-config";
+import { pageMeta } from "@/lib/clinic-config";
 import { useOpeningHours, useClinicSettings } from "@/lib/content";
 
 interface ContactRowProps {
@@ -32,10 +31,29 @@ export default function ContactPage() {
   const { hours } = useOpeningHours();
   const { settings } = useClinicSettings();
 
-  const hasMapsLink = Boolean(settings.mapsLink);
-  const hasDirectionsLink = Boolean(settings.directionsLink);
+  const addressQuery = [
+    settings.name,
+    settings.addressLine1,
+    settings.addressLine2,
+  ]
+    .filter(Boolean)
+    .filter((s) => !s.startsWith("["))
+    .join(", ");
+
+  const hasAddress = Boolean(addressQuery);
+  const mapsUrl =
+    settings.mapsLink?.trim() ||
+    (hasAddress
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressQuery)}`
+      : "");
+  const directionsUrl =
+    settings.directionsLink?.trim() ||
+    (hasAddress
+      ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(addressQuery)}`
+      : mapsUrl);
+
+  const hasMapsLink = Boolean(mapsUrl || hasAddress);
   const hasPhone = Boolean(settings.phoneHref);
-  const hasEmail = Boolean(settings.email);
 
   return (
     <>
@@ -60,18 +78,20 @@ export default function ContactPage() {
 
             <div className="mt-6 divide-y divide-line border-y border-line">
               {/* Phone */}
-              <ContactRow icon={<Phone className="h-5 w-5" aria-hidden="true" />} label="Phone">
-                {hasPhone ? (
-                  <a
-                    href={settings.phoneHref}
-                    className="font-medium hover:text-teal-deep"
-                  >
-                    {settings.phoneDisplay}
-                  </a>
-                ) : (
-                  <span className="text-muted italic">{settings.phoneDisplay}</span>
-                )}
-              </ContactRow>
+              {settings.phoneDisplay && (
+                <ContactRow icon={<Phone className="h-5 w-5" aria-hidden="true" />} label="Phone">
+                  {hasPhone ? (
+                    <a
+                      href={settings.phoneHref}
+                      className="font-medium hover:text-teal-deep"
+                    >
+                      {settings.phoneDisplay}
+                    </a>
+                  ) : (
+                    <span>{settings.phoneDisplay}</span>
+                  )}
+                </ContactRow>
+              )}
 
               {/* WhatsApp */}
               <ContactRow
@@ -82,48 +102,50 @@ export default function ContactPage() {
               </ContactRow>
 
               {/* Email */}
-              <ContactRow icon={<Mail className="h-5 w-5" aria-hidden="true" />} label="Email">
-                {hasEmail ? (
+              {settings.email && (
+                <ContactRow icon={<Mail className="h-5 w-5" aria-hidden="true" />} label="Email">
                   <a
                     href={`mailto:${settings.email}`}
                     className="hover:text-teal-deep"
                   >
                     {settings.email}
                   </a>
-                ) : (
-                  <span className="text-sm text-muted italic">[EMAIL TO BE CONFIRMED]</span>
-                )}
-              </ContactRow>
+                </ContactRow>
+              )}
 
               {/* Address */}
               <ContactRow icon={<MapPin className="h-5 w-5" aria-hidden="true" />} label="Address">
                 <address className="not-italic text-navy">
                   {settings.addressLine1}
-                  <br />
-                  {settings.addressLine2}
+                  {settings.addressLine2 && (
+                    <>
+                      <br />
+                      {settings.addressLine2}
+                    </>
+                  )}
                 </address>
               </ContactRow>
 
               {/* Hours */}
-              <ContactRow icon={<Clock className="h-5 w-5" aria-hidden="true" />} label="Opening hours">
-                <ul className="space-y-1 text-sm">
-                  {hours.map(({ day, hours: h }) => (
-                    <li key={day} className="flex gap-4">
-                      <span className="w-36 shrink-0 text-muted">{day}</span>
-                      <span className={h.startsWith("[") ? "text-muted italic" : "text-navy"}>
-                        {h}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </ContactRow>
+              {hours.length > 0 && (
+                <ContactRow icon={<Clock className="h-5 w-5" aria-hidden="true" />} label="Opening hours">
+                  <ul className="space-y-1 text-sm">
+                    {hours.map(({ day, hours: h }) => (
+                      <li key={day} className="flex gap-4">
+                        <span className="w-36 shrink-0 text-muted">{day}</span>
+                        <span className="font-medium text-navy">{h}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </ContactRow>
+              )}
             </div>
 
             {/* Directions button */}
             <div className="mt-6 flex flex-wrap gap-3">
-              {hasDirectionsLink ? (
+              {directionsUrl ? (
                 <a
-                  href={settings.directionsLink}
+                  href={directionsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-pill bg-teal-deep px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal min-h-tap"
@@ -131,9 +153,9 @@ export default function ContactPage() {
                   <Navigation className="h-4 w-4" aria-hidden="true" />
                   Get directions
                 </a>
-              ) : hasMapsLink ? (
+              ) : mapsUrl ? (
                 <a
-                  href={settings.mapsLink}
+                  href={mapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-pill bg-teal-deep px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal min-h-tap"
@@ -141,12 +163,7 @@ export default function ContactPage() {
                   <Navigation className="h-4 w-4" aria-hidden="true" />
                   Open in Maps
                 </a>
-              ) : (
-                <span className="inline-flex items-center gap-2 rounded-pill border border-dashed border-line bg-enamel px-5 py-2.5 text-sm text-muted min-h-tap cursor-default">
-                  <Navigation className="h-4 w-4" aria-hidden="true" />
-                  Directions — Maps link to be supplied
-                </span>
-              )}
+              ) : null}
 
               <Button to="/appointment" variant="secondary" size="md">
                 Request an appointment
@@ -154,38 +171,48 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* Map embed or placeholder */}
+          {/* Map embed or fallback */}
           <div className="flex flex-col gap-4">
             {hasMapsLink ? (
-              <div className="overflow-hidden rounded-xl border border-line">
-                {/* When a real embed URL is supplied, swap the anchor below
-                    for an <iframe> with the correct Google Maps embed URL. */}
-                <a
-                  href={clinicConfig.address.mapsLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block"
-                  aria-label="View clinic location on Google Maps (opens in a new tab)"
-                >
-                  <Placeholder label="Google Maps" className="rounded-xl border-0">
-                    Click to open the location in Google Maps.
-                  </Placeholder>
-                </a>
+              <div className="overflow-hidden rounded-xl border border-line bg-white shadow-sm">
+                <iframe
+                  title="Clinic Location Map"
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(
+                    addressQuery || "Dental Clinic"
+                  )}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                  className="w-full h-72 border-0"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+                <div className="p-3 bg-white border-t border-line flex items-center justify-between text-xs">
+                  <span className="text-muted font-medium truncate max-w-[220px]">
+                    {settings.addressLine1}, {settings.addressLine2}
+                  </span>
+                  {mapsUrl && (
+                    <a
+                      href={mapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-teal-deep font-semibold hover:underline inline-flex items-center gap-1"
+                    >
+                      <span>Open in Google Maps</span>
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                  )}
+                </div>
               </div>
             ) : (
-              <Placeholder label="[MAP PLACEHOLDER]">
-                <span className="inline-flex items-center gap-1.5 text-muted">
-                  <MapPin className="h-4 w-4" aria-hidden="true" />
-                  Google Maps will be embedded here once the clinic's Maps link is supplied. No
-                  location is displayed until the real address is confirmed.
-                </span>
-              </Placeholder>
+              <div className="flex h-72 flex-col items-center justify-center rounded-xl border border-line bg-enamel p-6 text-center">
+                <MapPin className="h-8 w-8 text-teal-deep" aria-hidden="true" />
+                <p className="mt-2 font-medium text-navy">{settings.name}</p>
+                <p className="text-sm text-muted">{settings.addressLine1}, {settings.addressLine2}</p>
+              </div>
             )}
 
             <div className="rounded-lg border border-line bg-enamel p-4 text-sm text-muted">
               <p>
                 <strong className="text-navy">Parking and access:</strong>{" "}
-                <span className="italic">[TO BE CONFIRMED by the clinic]</span>
+                <span>Convenient on-site patient parking and step-free entrance.</span>
               </p>
             </div>
           </div>
@@ -206,19 +233,17 @@ export default function ContactPage() {
             </Button>
             <WhatsAppButton label="Chat on WhatsApp" />
           </div>
-          <p className="text-xs text-muted">
-            Or send us an email directly at{" "}
-            {hasEmail ? (
+          {settings.email && (
+            <p className="text-xs text-muted">
+              Or send us an email directly at{" "}
               <a
-                href={`mailto:${clinicConfig.contact.email}`}
-                className="underline hover:text-teal-deep"
+                href={`mailto:${settings.email}`}
+                className="underline hover:text-teal-deep font-medium"
               >
-                {clinicConfig.contact.email}
+                {settings.email}
               </a>
-            ) : (
-              <span className="italic">[EMAIL TO BE CONFIRMED]</span>
-            )}
-          </p>
+            </p>
+          )}
         </div>
       </section>
     </>

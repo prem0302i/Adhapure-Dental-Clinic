@@ -9,7 +9,10 @@ import {
   Mail,
 } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
-import { notifyContentUpdated, type ClinicSettingsData } from "@/lib/content";
+import {
+  updateCachedClinicSettings,
+  type ClinicSettingsData,
+} from "@/lib/content";
 
 export default function AdminSettingsPage() {
   const [formData, setFormData] = useState<ClinicSettingsData>({
@@ -116,7 +119,21 @@ export default function AdminSettingsPage() {
 
       setSuccessMsg("Clinic settings updated successfully.");
       setIsDirty(false);
-      notifyContentUpdated();
+      updateCachedClinicSettings({
+        name: payload.clinic_name,
+        shortName: payload.clinic_name,
+        tagline: formData.tagline || "Patient-focused dental care",
+        phoneDisplay: payload.phone_display,
+        phoneHref: payload.phone_href,
+        whatsappNumber: payload.whatsapp_number,
+        email: payload.email,
+        addressLine1: payload.address_line1,
+        addressLine2: payload.address_line2,
+        mapsLink: payload.maps_link,
+        directionsLink: payload.directions_link,
+        instagram: payload.instagram_link,
+        facebook: payload.facebook_link,
+      });
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : "Failed to save settings.");
     } finally {

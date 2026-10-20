@@ -8,7 +8,10 @@ import {
   Trash2,
 } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
-import { notifyContentUpdated, type AboutContentData } from "@/lib/content";
+import {
+  updateCachedAboutContent,
+  type AboutContentData,
+} from "@/lib/content";
 
 export default function AdminAboutPage() {
   const [formData, setFormData] = useState<AboutContentData>({
@@ -113,7 +116,12 @@ export default function AdminAboutPage() {
 
       setSuccessMsg("About page content saved successfully.");
       setIsDirty(false);
-      notifyContentUpdated();
+      updateCachedAboutContent({
+        intro: payload.intro,
+        philosophy: payload.philosophy,
+        facilities: payload.facilities,
+        qualifications: payload.qualifications,
+      });
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : "Failed to save about content.");
     } finally {

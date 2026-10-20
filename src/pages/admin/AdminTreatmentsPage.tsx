@@ -19,10 +19,10 @@ import {
   Baby,
   Smile,
   Circle,
+  type LucideIcon,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
-import { notifyContentUpdated } from "@/lib/content";
+import { invalidateTreatmentsCache } from "@/lib/content";
 
 const iconMap: Record<string, LucideIcon> = {
   Stethoscope,
@@ -146,7 +146,7 @@ export default function AdminTreatmentsPage() {
       setTreatments((list) =>
         list.map((t) => (t.id === item.id ? { ...t, is_published: !t.is_published } : t)),
       );
-      notifyContentUpdated();
+      invalidateTreatmentsCache();
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : "Failed to update publish state.");
     }
@@ -189,7 +189,7 @@ export default function AdminTreatmentsPage() {
 
       setIsEditing(false);
       await loadTreatments();
-      notifyContentUpdated();
+      invalidateTreatmentsCache();
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : "Failed to save treatment.");
     } finally {
@@ -206,7 +206,7 @@ export default function AdminTreatmentsPage() {
       setTreatments((list) => list.filter((t) => t.id !== deleteTarget.id));
       setDeleteTarget(null);
       setSuccessMsg("Treatment deleted successfully.");
-      notifyContentUpdated();
+      invalidateTreatmentsCache();
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : "Failed to delete treatment.");
     }

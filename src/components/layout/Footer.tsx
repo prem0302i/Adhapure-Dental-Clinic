@@ -2,10 +2,12 @@ import { Link } from "react-router-dom";
 import { Phone, MapPin, Clock } from "lucide-react";
 import { navItems } from "@/lib/clinic-config";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
-import { useClinicSettings } from "@/lib/content";
+import { useClinicSettings, useOpeningHours } from "@/lib/content";
 
 export function Footer() {
   const { settings } = useClinicSettings();
+  const { hours } = useOpeningHours();
+
   return (
     <footer className="bg-navy text-white">
       <div className="container-wide py-14">
@@ -45,22 +47,39 @@ export function Footer() {
           <div className="text-sm">
             <h2 className="font-serif text-base font-semibold text-white">Contact</h2>
             <ul className="mt-3 space-y-3 text-white/75">
-              <li className="flex items-start gap-2">
-                <Phone className="mt-0.5 h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
-                <span>{settings.phoneDisplay}</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
-                <span>
-                  {settings.addressLine1}
-                  <br />
-                  {settings.addressLine2}
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Clock className="mt-0.5 h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
-                <span>Opening hours to be confirmed</span>
-              </li>
+              {settings.phoneDisplay && (
+                <li className="flex items-start gap-2">
+                  <Phone className="mt-0.5 h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
+                  {settings.phoneHref ? (
+                    <a href={settings.phoneHref} className="hover:text-white">
+                      {settings.phoneDisplay}
+                    </a>
+                  ) : (
+                    <span>{settings.phoneDisplay}</span>
+                  )}
+                </li>
+              )}
+              {settings.addressLine1 && (
+                <li className="flex items-start gap-2">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
+                  <span>
+                    {settings.addressLine1}
+                    {settings.addressLine2 ? `, ${settings.addressLine2}` : ""}
+                  </span>
+                </li>
+              )}
+              {hours.length > 0 && (
+                <li className="flex items-start gap-2">
+                  <Clock className="mt-0.5 h-4 w-4 shrink-0 text-teal" aria-hidden="true" />
+                  <div className="space-y-0.5">
+                    {hours.map((h) => (
+                      <div key={h.day} className="text-xs">
+                        <span className="font-medium text-white/90">{h.day}:</span> {h.hours}
+                      </div>
+                    ))}
+                  </div>
+                </li>
+              )}
             </ul>
           </div>
         </div>
@@ -70,11 +89,7 @@ export function Footer() {
             © {new Date().getFullYear()} {settings.name}. All rights reserved.{" "}
             <Link to="/privacy" className="underline hover:text-white">
               Privacy policy
-            </Link>{" "}
-            (placeholder).
-          </p>
-          <p className="mt-1">
-            This site is in development. Details shown are placeholders pending verification.
+            </Link>
           </p>
         </div>
       </div>

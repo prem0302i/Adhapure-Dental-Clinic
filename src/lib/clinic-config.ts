@@ -15,29 +15,32 @@ import type {
  */
 
 export const clinicConfig = {
-  name: "[CLINIC NAME]",
-  shortName: "[CLINIC NAME]",
+  name: "Dental Clinic",
+  shortName: "Dental Clinic",
   tagline: "Patient-focused dental care",
   address: {
-    line1: "[CLINIC ADDRESS LINE 1]",
-    line2: "[CITY, POSTAL CODE]",
-    mapsLink: "", // Google Maps URL supplied by client
-    directionsLink: "", // Google Maps directions URL supplied by client
+    line1: "sutgirni",
+    line2: "431005",
+    mapsLink: "https://maps.app.goo.gl/V6AkVqbDAJUCfBdz9",
+    directionsLink: "https://maps.app.goo.gl/fKgc9pH7fQwM24Mt",
   },
   contact: {
-    phoneDisplay: "[PHONE NUMBER]",
-    phoneHref: "", // tel: link, populated when number supplied
-    // digits only, international format, no + ; read from VITE_WHATSAPP_NUMBER
-    whatsappNumber: import.meta.env.VITE_WHATSAPP_NUMBER ?? "",
-    email: "", // populated when email supplied
+    phoneDisplay: "1230789456",
+    phoneHref: "tel:1230789456",
+    // digits only, international format, no + ; read from VITE_WHATSAPP_NUMBER or default
+    whatsappNumber: import.meta.env.VITE_WHATSAPP_NUMBER ?? "9284480361",
+    email: "email@gmail.com",
   },
-  hours: [] as HoursEntry[],
+  hours: [
+    { day: "Monday – Friday", hours: "7:00 – 6:30" },
+    { day: "Saturday", hours: "8:00 – 3:00" },
+    { day: "Sunday", hours: "Closed" },
+  ] as HoursEntry[],
   social: {
     instagram: "",
     facebook: "",
   },
-  /** Link to the privacy policy page or document (placeholder until supplied). */
-  privacyPolicyUrl: "/privacy", // will be a real URL or page when supplied
+  privacyPolicyUrl: "/privacy",
 } as const;
 
 /**
@@ -83,26 +86,7 @@ export const services: Service[] = [
   { slug: "cosmetic", name: "Cosmetic dentistry", summary: "Treatments focused on the appearance of your smile.", icon: "Smile" },
 ];
 
-export const placeholderDoctors: Doctor[] = [
-  {
-    slug: "doctor-1",
-    name: "[DOCTOR NAME]",
-    qualifications: "[QUALIFICATIONS]",
-    specialisation: "[SPECIALISATION]",
-    experienceYears: undefined,
-    bio: "A short biography will appear here once verified details are supplied by the clinic.",
-    placeholder: true,
-  },
-  {
-    slug: "doctor-2",
-    name: "[DOCTOR NAME]",
-    qualifications: "[QUALIFICATIONS]",
-    specialisation: "[SPECIALISATION]",
-    experienceYears: undefined,
-    bio: "A short biography will appear here once verified details are supplied by the clinic.",
-    placeholder: true,
-  },
-];
+export const placeholderDoctors: Doctor[] = [];
 
 /** No gallery cases until authorised photos with consent are supplied. */
 export const galleryCases: GalleryCase[] = [];
@@ -122,42 +106,42 @@ export const preferredTimeOptions = [
 /** Page-level SEO metadata keyed by route path. */
 export const pageMeta: Record<string, { title: string; description: string }> = {
   "/": {
-    title: "[CLINIC NAME] — Gentle, trusted dental care",
+    title: "Gentle, trusted dental care",
     description:
       "Patient-focused dental care for you and your family. Request an appointment or chat on WhatsApp.",
   },
   "/about": {
-    title: "About the clinic — [CLINIC NAME]",
+    title: "About the clinic",
     description:
       "Our approach to patient care, our facilities, and what you can expect when you visit us.",
   },
   "/services": {
-    title: "Treatments we offer — [CLINIC NAME]",
+    title: "Treatments we offer",
     description:
       "Browse our range of dental treatments including check-ups, cleaning, root canal, whitening, implants and more.",
   },
   "/doctors": {
-    title: "Our doctors — [CLINIC NAME]",
+    title: "Our doctors",
     description:
       "Meet the dentists who care for our patients. Qualifications, specialisations, and bios.",
   },
   "/gallery": {
-    title: "Smile gallery — [CLINIC NAME]",
+    title: "Smile gallery",
     description:
       "Before and after smile results shown with patient consent. Real cases, clearly labelled.",
   },
   "/appointment": {
-    title: "Request an appointment — [CLINIC NAME]",
+    title: "Request an appointment",
     description:
-      "Send us an enquiry and a member of our team will contact you to confirm availability. This is an enquiry, not a confirmed booking.",
+      "Send us an enquiry and a member of our team will contact you to confirm availability.",
   },
   "/contact": {
-    title: "Contact and location — [CLINIC NAME]",
+    title: "Contact and location",
     description:
       "Phone, address, opening hours, and directions to our clinic. Chat on WhatsApp for a quick reply.",
   },
   "/privacy": {
-    title: "Privacy policy — [CLINIC NAME]",
+    title: "Privacy policy",
     description:
       "How we collect, use and protect your personal information when you contact our dental clinic.",
   },
