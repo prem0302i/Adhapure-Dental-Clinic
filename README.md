@@ -188,3 +188,4 @@ The site is built as a static Single Page Application (SPA). To deploy to Vercel
    - Visit the provided `*.vercel.app` domain.
    - Verify all routes (`/`, `/about`, `/services`, `/doctors`, `/gallery`, `/appointment`, `/contact`, `/privacy`).
    - Check WhatsApp click-to-chat links and Google Maps links.
+# Adhapure-Dental-Clinic
